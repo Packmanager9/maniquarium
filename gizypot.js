@@ -2,8 +2,8 @@
 window.addEventListener('DOMContentLoaded', (event) => {
 
 
-    let pomaoimg = new Image()
-    pomaoimg.src = 'rcpomao.png'
+    // let pomaoimg = new Image()
+    // pomaoimg.src = 'rcpomao.png'
 
     const squaretable = {} // this section of code is an optimization for use of the hypotenuse function on Line and LineOP objects
     for (let t = 0; t < 10000000; t++) {
@@ -14,99 +14,99 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
     let video_recorder
     let recording = 0
-    function CanvasCaptureToWEBM(canvas, bitrate) {
-        // the video_recorder is set to  '= new CanvasCaptureToWEBM(canvas, 4500000);' in the setup, 
-        // it uses the same canvas as the rest of the file.
-        // to start a recording call .record() on video_recorder
-        /*
-        for example, 
-        if(keysPressed['-'] && recording == 0){
-            recording = 1
-            video_recorder.record()
-        }
-        if(keysPressed['='] && recording == 1){
-            recording = 0
-            video_recorder.stop()
-            video_recorder.download('File Name As A String.webm')
-        }
-        */
-        this.record = Record
-        this.stop = Stop
-        this.download = saveToDownloads
-        let blobCaptures = []
-        let outputFormat = {}
-        let recorder = {}
-        let canvasInput = canvas.captureStream()
-        if (typeof canvasInput == undefined || !canvasInput) {
-            return
-        }
-        const video = document.createElement('video')
-        video.style.display = 'none'
+    // function CanvasCaptureToWEBM(canvas, bitrate) {
+    //     // the video_recorder is set to  '= new CanvasCaptureToWEBM(canvas, 4500000);' in the setup, 
+    //     // it uses the same canvas as the rest of the file.
+    //     // to start a recording call .record() on video_recorder
+    //     /*
+    //     for example, 
+    //     if(keysPressed['-'] && recording == 0){
+    //         recording = 1
+    //         video_recorder.record()
+    //     }
+    //     if(keysPressed['='] && recording == 1){
+    //         recording = 0
+    //         video_recorder.stop()
+    //         video_recorder.download('File Name As A String.webm')
+    //     }
+    //     */
+    //     this.record = Record
+    //     this.stop = Stop
+    //     this.download = saveToDownloads
+    //     let blobCaptures = []
+    //     let outputFormat = {}
+    //     let recorder = {}
+    //     let canvasInput = canvas.captureStream()
+    //     if (typeof canvasInput == undefined || !canvasInput) {
+    //         return
+    //     }
+    //     const video = document.createElement('video')
+    //     video.style.display = 'none'
 
-        function Record() {
-            let formats = [
-                "video/webm\;codecs=h264",
-                "video/webm\;codecs=vp8",
-                'video/vp8',
-                "video/webm",
-                'video/webm,codecs=vp9',
-                "video/webm\;codecs=daala",
-                "video/mpeg"
-            ];
+    //     function Record() {
+    //         let formats = [
+    //             "video/webm\;codecs=h264",
+    //             "video/webm\;codecs=vp8",
+    //             'video/vp8',
+    //             "video/webm",
+    //             'video/webm,codecs=vp9',
+    //             "video/webm\;codecs=daala",
+    //             "video/mpeg"
+    //         ];
 
-            for (let t = 0; t < formats.length; t++) {
-                if (MediaRecorder.isTypeSupported(formats[t])) {
-                    outputFormat = formats[t]
-                    break
-                }
-            }
-            if (typeof outputFormat != "string") {
-                return
-            } else {
-                let videoSettings = {
-                    mimeType: outputFormat,
-                    videoBitsPerSecond: bitrate || 2000000 // 2Mbps
-                };
-                blobCaptures = []
-                try {
-                    recorder = new MediaRecorder(canvasInput, videoSettings)
-                } catch (error) {
-                    return;
-                }
-                recorder.onstop = handleStop
-                recorder.ondataavailable = handleAvailableData
-                recorder.start(100)
-            }
-        }
-        function handleAvailableData(event) {
-            if (event.data && event.data.size > 0) {
-                blobCaptures.push(event.data)
-            }
-        }
-        function handleStop() {
-            const superBuffer = new Blob(blobCaptures, { type: outputFormat })
-            video.src = window.URL.createObjectURL(superBuffer)
-        }
-        function Stop() {
-            recorder.stop()
-            video.controls = true
-        }
-        function saveToDownloads(input) { // specifying a file name for the output
-            const name = input || 'video_out.webm'
-            const blob = new Blob(blobCaptures, { type: outputFormat })
-            const url = window.URL.createObjectURL(blob)
-            const storageElement = document.createElement('a')
-            storageElement.style.display = 'none'
-            storageElement.href = url
-            storageElement.download = name
-            document.body.appendChild(storageElement)
-            storageElement.click()
-            setTimeout(() => {
-                document.body.removeChild(storageElement)
-                window.URL.revokeObjectURL(url)
-            }, 100)
-        }
-    }
+    //         for (let t = 0; t < formats.length; t++) {
+    //             if (MediaRecorder.isTypeSupported(formats[t])) {
+    //                 outputFormat = formats[t]
+    //                 break
+    //             }
+    //         }
+    //         if (typeof outputFormat != "string") {
+    //             return
+    //         } else {
+    //             let videoSettings = {
+    //                 mimeType: outputFormat,
+    //                 videoBitsPerSecond: bitrate || 2000000 // 2Mbps
+    //             };
+    //             blobCaptures = []
+    //             try {
+    //                 recorder = new MediaRecorder(canvasInput, videoSettings)
+    //             } catch (error) {
+    //                 return;
+    //             }
+    //             recorder.onstop = handleStop
+    //             recorder.ondataavailable = handleAvailableData
+    //             recorder.start(100)
+    //         }
+    //     }
+    //     function handleAvailableData(event) {
+    //         if (event.data && event.data.size > 0) {
+    //             blobCaptures.push(event.data)
+    //         }
+    //     }
+    //     function handleStop() {
+    //         const superBuffer = new Blob(blobCaptures, { type: outputFormat })
+    //         video.src = window.URL.createObjectURL(superBuffer)
+    //     }
+    //     function Stop() {
+    //         recorder.stop()
+    //         video.controls = true
+    //     }
+    //     function saveToDownloads(input) { // specifying a file name for the output
+    //         const name = input || 'video_out.webm'
+    //         const blob = new Blob(blobCaptures, { type: outputFormat })
+    //         const url = window.URL.createObjectURL(blob)
+    //         const storageElement = document.createElement('a')
+    //         storageElement.style.display = 'none'
+    //         storageElement.href = url
+    //         storageElement.download = name
+    //         document.body.appendChild(storageElement)
+    //         storageElement.click()
+    //         setTimeout(() => {
+    //             document.body.removeChild(storageElement)
+    //             window.URL.revokeObjectURL(url)
+    //         }, 100)
+    //     }
+    // }
     const gamepadAPI = {
         controller: {},
         turbo: true,
@@ -1076,7 +1076,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
     function setUp(canvas_pass, style = "#002222") {
         canvas = canvas_pass
-        video_recorder = new CanvasCaptureToWEBM(canvas, 2500000);
+        // video_recorder = new CanvasCaptureToWEBM(canvas, 2500000);
         canvas_context = canvas.getContext('2d');
         canvas_context.imageSmoothingEnabled = true
         canvas.style.background = style
@@ -1317,9 +1317,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
 
-    let imageNames = ['anchorfish.png', 'clownfish.png', "clamfly.png", 'hogfish.png', 'eyepeller.png', 'pufftacle.png', 'gulperpuffmouth.png', "froggair.png"]
+    let imageNames = ['anchorfish.png', 'clownfish.png', "clamfly.png", 'hogfish.png', 'eyepeller.png', 'pufftacle.png', 'gulperpuffmouth.png', "froggair.png", "pomanatee.png", "nauti.png"]
     let plantImages = ['seaweed.png', "bush.png"]
-    let imageNamesInv = ['anchorfishi.png', 'clownfishi.png', "clamflyi.png", 'hogfishi.png', 'eyepelleri.png', 'pufftaclei.png ', 'gulperpuffmouth.png', "froggair.png"]
+    let imageNamesInv = ['anchorfishi.png', 'clownfishi.png', "clamflyi.png", 'hogfishi.png', 'eyepelleri.png', 'pufftaclei.png ', 'gulperpuffmouth.png', "froggair.png","pomanatee.png", "nauti.png"]
     let predatorMouths = ['gulperpuffmouth.png', 'gulperpuffmouth.png']
     let predatorMouthsInv = ['gulperpuffmouth.png', 'gulperpuffmouth.png']
     let predatorFull = ['gulperpufffull.png', 'gulperpufffull.png']
@@ -1349,7 +1349,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (this.fishflag == 1) {
                 this.tapped = 1
                 let image = new Image()
-                let tyep = Math.min(Math.max(this.type, 0), 7)
+                let tyep = Math.min(Math.max(this.type, 0), 9)
                 this.type = tyep
                 image.src = imageNames[tyep]
                 canvas_context.drawImage(image, 0, 0, image.height, image.height, 1280 - 64, 0, 64, 64)
@@ -1391,7 +1391,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (keysPressed[' '] || keysPressed['m'] ) {
                 this.type++
                 if (this.fishflag == 1) {
-                    this.type %= 8
+                    this.type %= 10
                 } else if (this.plantflag == 1) {
                     this.type %= 2
                 }
@@ -1408,7 +1408,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         act() {
             if (this.fishflag == 1) {
-                let tyep = Math.min(Math.max(this.type, 0), 7)
+                let tyep = Math.min(Math.max(this.type, 0), 9)
                 let p = new Animal(this.tip.x, this.tip.y, tyep)
                 let wet = 0
                 if (tank.money >= (50 + (tyep * 50))) {
@@ -1451,7 +1451,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
             }
-            this.clearFlags()
+            // this.clearFlags()
 
         }
     }
@@ -1566,7 +1566,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.sdir = Math.random() - .5
             this.reprate = .00022 + (this.type / 50000)
             if (this.type == 6) {
-                this.reprate = .000069 //5
+                this.reprate = .0000769 //5 //69
             }
             this.age = 0
             this.growthrate = (1.0005 + (this.type / 10000))
@@ -1580,6 +1580,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.agemax *= 2.1
                 this.reprate *= .5
             }
+            if (this.type == 8) {
+                this.agemax *= 4.1
+                this.reprate *= .25
+            }
+            if (this.type == 9) {
+                this.agemax *= 5
+                this.reprate *= .198
+            }
         }
         draw() {
             if(this.hunger < 50){
@@ -1591,6 +1599,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (this.predator == 1 || this.type == 7) {
                     this.body.radius = 24 * this.size
                 }
+                if ( this.type == 8) {
+                    this.body.radius = 32 * this.size
+                }
             } else {
                 this.age++
                 if (this.age > this.agemax) {
@@ -1599,7 +1610,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
                 if (Math.random() < this.reprate) {
-                    if (tank.animals.length < 100) {
+                    if (tank.animals.length < 100 ||  (tank.animals.length < 105 && this.type == 6) ) {
                         let wet = 0
                         for (let t = 0; t < tank.animals.length; t++) {
                             if (tank.animals[t] != this) {
@@ -1643,9 +1654,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (this.body.radius < 8) {
                     this.marked = 1
                 } else {
-                    if (this.predator != 1 && this.type != 7) {
+                    if (this.predator != 1 && this.type != 7 && this.type != 8) {
                         canvas_context.drawImage(this.image, this.step * 32, 0, 32, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, this.body.radius * 2, this.body.radius * 2)
                         this.body.radius *= .9995 //997
+                        this.body.xmom *= .9
+                        this.body.ymom *= .9
+                    } else   if ( this.type == 8) {
+                        canvas_context.drawImage(this.image, this.step * 48, 0, 48, 48, this.body.x - this.body.radius, this.body.y - this.body.radius, this.body.radius * 2, this.body.radius * 2)
+                        this.body.radius *= .99975 //997
                         this.body.xmom *= .9
                         this.body.ymom *= .9
                     } else {
@@ -2810,6 +2826,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         let min = 99999999
 
                         for (let t = 0; t < tank.animals.length; t++) {
+                            if(tank.animals[t].type == 9){
+                                continue
+                            }
                             if (this == tank.animals[t] || tank.animals[t].body.radius >= 16) {
                                 continue
                             }
@@ -3279,6 +3298,520 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
                 this.hunger -= .009 //01
             }
+            if (this.type == 8) {
+                this.weight = 12.4
+                canvas_context.translate(this.body.x, this.body.y)
+                canvas_context.rotate(this.angle)
+                canvas_context.translate(-(this.body.x), -(this.body.y))
+                this.think = 10
+                this.count++
+                // if (Math.random() < .005) {
+                //     this.activityburst = 1
+                // }
+
+
+
+                this.scount += 1
+                if (this.scount >= 3) {
+                    if (this.hunger < 70) {
+                        if (this.hunger < 50) {
+                            if (this.scount >= 6) {
+                                this.step++
+                                this.scount = 0
+                            }
+                        } else if (this.hunger < 60) {
+                            if (this.scount >= 5) {
+                                this.step++
+                                this.scount = 0
+                            }
+                        } else if (this.hunger < 70) {
+                            if (this.scount >= 4) {
+                                this.step++
+                                this.scount = 0
+                            }
+                        }
+                    } else {
+                        if (this.scount >= 300 || this.activityburst == 1) {
+                            this.step++
+                            this.scount = 0
+                            if (Math.random() < .1) {
+                                this.activityburst = 0
+                            }
+                        }
+                    }
+                    if(Math.cos(this.angle + (Math.PI / 2)) < 0){
+                        this.step %= 5
+                    }else{
+
+                        this.step-=5
+                        this.step %= 5
+                        this.step+=5
+                    }
+                }
+                if (this.hunger < 20) {
+                    canvas_context.drawImage(this.imagei, this.step * 48, 0, 48, 48, this.body.x - this.body.radius, this.body.y - this.body.radius, this.body.radius * 2, this.body.radius * 2)
+                } else {
+                    canvas_context.drawImage(this.image, this.step * 48, 0, 48, 48, this.body.x - this.body.radius, this.body.y - this.body.radius, this.body.radius * 2, this.body.radius * 2)
+                }
+
+                canvas_context.translate(this.body.x, this.body.y)
+                canvas_context.rotate(-this.angle)
+                canvas_context.translate(-(this.body.x), -(this.body.y))
+
+                let below = 0
+                if (this.body.y < tank.waterline + 10) {
+                    this.body.y += 1
+                }
+                if (this.body.y < tank.waterline + 20) {
+                    this.body.y += 1
+                }
+                if (this.hunger < 50) {
+                    let min = 99999999
+
+                    for (let t = 0; t < tank.food.length; t++) {
+                        if (tank.food[t].body.y > tank.waterline) {
+                            below = 1
+                            this.scount += 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                    }
+                    for (let t = 0; t < tank.food.length; t++) {
+                        if (tank.food[t].body.y > tank.waterline) {
+                            below = 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                        tank.food[t].link.target = this.body
+                        if (tank.food[t].body.doesPerimeterTouch(this.body)) {
+                            if (tank.food[t].body.shape == 1) {
+                                this.hunger += (tank.food[t].calories*2.5)
+                                tank.food[t].body.shapes.splice(0, 1)
+                                break
+                            }
+                        }
+                        if (min > tank.food[t].link.hypotenuse()) {
+                            min = tank.food[t].link.hypotenuse()
+                            this.target = tank.food[t].body
+                            this.angle = tank.food[t].link.angle() + (Math.PI / 2)
+                            // if(this.bump != 0){
+                            this.angle += (Math.PI / 2) * this.bump
+                            // }
+                            if (min < 22) { //18
+                                tank.food[t].marked = 1
+                                this.hunger += tank.food[t].calories
+                                // tank.food[t].body.shapes.splice(0, 1)
+                            }
+                        }
+                    }
+                }
+
+                
+
+                // if (this.count % this.think == 0) {
+                    if (this.hunger < 20) {
+                        if (this.hungerstate == 0) {
+                            if (this.dir == 1) {
+                                this.mouthdir = 0
+                            } else if (this.dir != 1) {
+                                this.mouthdir = 22
+                            }
+                        }
+                        this.hungerstate = 1
+                        let min = 99999999
+
+                        for (let t = 0; t < tank.plants.length; t++) {
+                            if (0 != tank.plants[t].type) {
+                                continue
+                            }
+                            if (this == tank.plants[t] || tank.plants[t].body.radius >= 17) {
+                                continue
+                            }
+                            if (tank.plants[t].body.y > tank.waterline) {
+                                below = 1
+                            } else {
+                                if (below == 1) {
+                                    continue
+                                }
+                            }
+                        }
+                        for (let t = 0; t < tank.plants.length; t++) {
+
+                            if (0 != tank.plants[t].type) {
+                                continue
+                            }
+                            if (this == tank.plants[t] || tank.plants[t].body.radius >= 17) {
+                                continue
+                            }
+                            if (tank.plants[t].body.y > tank.waterline) {
+                                below = 1
+                            } else {
+                                if (below == 1) {
+                                    continue
+                                }
+                            }
+                            tank.plants[t].link.target = this.body
+                            if (min > tank.plants[t].link.hypotenuse()) {
+                                min = tank.plants[t].link.hypotenuse()
+                                this.target = tank.plants[t].body
+                                this.ypdir = Math.sign(this.target.y - this.body.y) * 2
+                                this.angle = tank.plants[t].link.angle() + (Math.PI / 2)
+                                // if(this.bump != 0){
+                                this.angle += (Math.PI / 2) * this.bump
+                                if (this.body.doesPerimeterTouch(this.target)) {
+                                    tank.plants[t].dying = 1
+                                    tank.plants[t].body.radius = .1
+                                    tank.plants[t].hunger = -100
+                                    tank.plants[t].body.marked = 1
+                                    tank.plants[t].marked = 1
+                                    this.hunger += 200//tank.plants[t].calories
+                                    // tank.plants[t].body.shapes.splice(0, 1)
+                                    // this.hunger%=100
+                                }
+                                if (Math.sign(this.body.x - tank.plants[t].body.x) != this.dir) {
+                                    if (this.dirshift <= -10) {
+                                        this.dirshift = 40
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        this.body.y += (this.sdir * 1)
+                        this.hungerstate = 0
+                        this.mouthdir = 0
+                    }
+                    // this.hunger -= .5 //.25
+                    // console.log(this.hunger)
+                // }
+
+
+
+
+                if (this.hunger < 70 || this.activityburst == 1) {
+                    let dif = Math.max(this.hunger - 50, 1)
+                    let mag = (20 - dif) / 20
+                    if (this.activityburst == 1) {
+                        mag = .5
+                    }
+                    this.body.x -= Math.cos(this.angle + (Math.PI / 2)) * mag
+                    this.body.y -= Math.sin(this.angle + (Math.PI / 2)) * mag
+                    this.body.x -= Math.cos(this.angle + (Math.PI / 2)) * below * mag
+                    this.body.y -= Math.sin(this.angle + (Math.PI / 2)) * below * mag
+                }
+                if (this.body.x < 15) {
+                    this.body.x++
+                }
+                if (this.body.x < 20) {
+                    this.body.x++
+                }
+                if (this.body.x > 1260) {
+                    this.body.x--
+                }
+                if (this.body.x > 1265) {
+                    this.body.x--
+                }
+
+                if (this.body.y < tank.waterline + 50) {
+                    this.angle += this.spindir
+                    if (this.body.y < tank.waterline + 70) {
+                        this.body.y += .3
+                    }
+                    if (this.body.y < tank.waterline + 60) {
+                        this.body.y += .3
+                    }
+                    if (this.body.y < tank.waterline + 50) {
+                        this.body.y += .3
+                    }
+                    if (this.body.y < tank.waterline + 30) {
+                        this.body.y += .3
+                    }
+                    if (this.body.y < tank.waterline + 25) {
+                        this.body.y += 1
+                    }
+                    if (this.body.y < tank.waterline + 20) {
+                        this.body.y += 1
+                    }
+                } else if (this.body.y > 690) {
+                    this.angle += this.spindir
+                    this.body.y--
+                } else {
+
+                    if (Math.random() < .1) {
+                        this.angle += this.spindir
+                    }
+
+                    if (Math.random() < .07) {
+                        this.spindir = (Math.random() - .5) / 20
+                    }
+
+                }
+                this.hunger -= .009 //01
+            }
+            if (this.type == 9) {
+                this.weight = 4.4
+                canvas_context.translate(this.body.x, this.body.y)
+                canvas_context.rotate(this.angle)
+                canvas_context.translate(-(this.body.x), -(this.body.y))
+                this.think = 10
+                this.count++
+                // if (Math.random() < .005) {
+                //     this.activityburst = 1
+                // }
+
+
+
+                this.scount += 1
+                if (this.scount >= 3) {
+                    if (this.hunger < 70) {
+                        if (this.hunger < 50) {
+                            if (this.scount >= 6) {
+                                this.step++
+                                this.scount = 0
+                            }
+                        } else if (this.hunger < 60) {
+                            if (this.scount >= 5) {
+                                this.step++
+                                this.scount = 0
+                            }
+                        } else if (this.hunger < 70) {
+                            if (this.scount >= 4) {
+                                this.step++
+                                this.scount = 0
+                            }
+                        }
+                    } else {
+                        if (this.scount >= 7 || this.activityburst == 1) {
+                            this.step++
+                            this.scount = 0
+                            if (Math.random() < .1) {
+                                this.activityburst = 0
+                            }
+                        }
+                    }
+                    if(Math.cos(this.angle + (Math.PI / 2)) < 0){
+                        this.step %= 4
+                    }else{
+
+                        this.step-=4
+                        this.step %= 4
+                        this.step+=4
+                    }
+                }
+                if(Math.cos(this.angle + (Math.PI / 2)) < 0){
+                    if (this.hunger < 20) {
+                        canvas_context.drawImage(this.imagei, (this.step * 32), 0, 31, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2)-1, this.body.radius * 2)
+                    } else {
+                        canvas_context.drawImage(this.image, (this.step * 32), 0, 31, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2)-1, this.body.radius * 2)
+                    }
+                }else{
+                    if (this.hunger < 20) {
+                        canvas_context.drawImage(this.imagei, (this.step * 32)+1, 0,31, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2)-1, this.body.radius * 2)
+                    } else {
+                        canvas_context.drawImage(this.image, (this.step * 32)+1, 0, 31, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2)-1, this.body.radius * 2)
+                    }
+                }
+
+                canvas_context.translate(this.body.x, this.body.y)
+                canvas_context.rotate(-this.angle)
+                canvas_context.translate(-(this.body.x), -(this.body.y))
+
+                let below = 0
+                if (this.body.y < tank.waterline + 10) {
+                    this.body.y += 1
+                }
+                if (this.body.y < tank.waterline + 20) {
+                    this.body.y += 1
+                }
+                if (this.hunger < 50) {
+                    let min = 99999999
+
+                    for (let t = 0; t < tank.food.length; t++) {
+                        if (tank.food[t].body.y > tank.waterline) {
+                            below = 1
+                            this.scount += 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                    }
+                    for (let t = 0; t < tank.food.length; t++) {
+                        if (tank.food[t].body.y > tank.waterline) {
+                            below = 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                        tank.food[t].link.target = this.body
+                        if (tank.food[t].body.doesPerimeterTouch(this.body)) {
+                            if (tank.food[t].body.shape == 1) {
+                                this.hunger += (tank.food[t].calories*2.5)
+                                tank.food[t].body.shapes.splice(0, 1)
+                                break
+                            }
+                        }
+                        if (min > tank.food[t].link.hypotenuse()) {
+                            min = tank.food[t].link.hypotenuse()
+                            this.target = tank.food[t].body
+                            this.angle = tank.food[t].link.angle() + (Math.PI / 2)
+                            // if(this.bump != 0){
+                            this.angle += (Math.PI / 2) * this.bump
+                            // }
+                            if (min < 22) { //18
+                                tank.food[t].marked = 1
+                                this.hunger += tank.food[t].calories
+                                // tank.food[t].body.shapes.splice(0, 1)
+                            }
+                        }
+                    }
+                }
+
+                
+
+                // if (this.count % this.think == 0) {
+                    if (this.hunger < 20) {
+                        if (this.hungerstate == 0) {
+                            if (this.dir == 1) {
+                                this.mouthdir = 0
+                            } else if (this.dir != 1) {
+                                this.mouthdir = 22
+                            }
+                        }
+                        this.hungerstate = 1
+                        let min = 99999999
+
+                        for (let t = 0; t < tank.plants.length; t++) {
+                            if (0 != tank.plants[t].type) {
+                                continue
+                            }
+                            if (this == tank.plants[t] || tank.plants[t].body.radius >= 17) {
+                                continue
+                            }
+                            if (tank.plants[t].body.y > tank.waterline) {
+                                below = 1
+                            } else {
+                                if (below == 1) {
+                                    continue
+                                }
+                            }
+                        }
+                        for (let t = 0; t < tank.plants.length; t++) {
+
+                            if (0 != tank.plants[t].type) {
+                                continue
+                            }
+                            if (this == tank.plants[t] || tank.plants[t].body.radius >= 17) {
+                                continue
+                            }
+                            if (tank.plants[t].body.y > tank.waterline) {
+                                below = 1
+                            } else {
+                                if (below == 1) {
+                                    continue
+                                }
+                            }
+                            tank.plants[t].link.target = this.body
+                            if (min > tank.plants[t].link.hypotenuse()) {
+                                min = tank.plants[t].link.hypotenuse()
+                                this.target = tank.plants[t].body
+                                this.ypdir = Math.sign(this.target.y - this.body.y) * 2
+                                this.angle = tank.plants[t].link.angle() + (Math.PI / 2)
+                                // if(this.bump != 0){
+                                this.angle += (Math.PI / 2) * this.bump
+                                if (this.body.doesPerimeterTouch(this.target)) {
+                                    tank.plants[t].dying = 1
+                                    tank.plants[t].body.radius = .1
+                                    tank.plants[t].hunger = -100
+                                    tank.plants[t].body.marked = 1
+                                    tank.plants[t].marked = 1
+                                    this.hunger += 200//tank.plants[t].calories
+                                    // tank.plants[t].body.shapes.splice(0, 1)
+                                    // this.hunger%=100
+                                }
+                                if (Math.sign(this.body.x - tank.plants[t].body.x) != this.dir) {
+                                    if (this.dirshift <= -10) {
+                                        this.dirshift = 40
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        this.body.y += ((this.sdir * 1)*.1)
+                        this.hungerstate = 0
+                        this.mouthdir = 0
+                    }
+                    // this.hunger -= .5 //.25
+                    // console.log(this.hunger)
+                // }
+
+
+
+
+                if (this.hunger < 70 || this.activityburst == 1) {
+                    let dif = Math.max(this.hunger - 50, 1)
+                    let mag = (20 - dif) / 20
+                    if (this.activityburst == 1) {
+                        mag = .5
+                    }
+                    this.body.x -= Math.cos(this.angle + (Math.PI / 2)) * mag
+                    this.body.y -= Math.sin(this.angle + (Math.PI / 2)) * mag
+                    this.body.x -= Math.cos(this.angle + (Math.PI / 2)) * below * mag
+                    this.body.y -= Math.sin(this.angle + (Math.PI / 2)) * below * mag
+                }
+                if (this.body.x < 15) {
+                    this.body.x++
+                }
+                if (this.body.x < 20) {
+                    this.body.x++
+                }
+                if (this.body.x > 1260) {
+                    this.body.x--
+                }
+                if (this.body.x > 1265) {
+                    this.body.x--
+                }
+
+                if (this.body.y < tank.waterline + 50) {
+                    this.angle += this.spindir
+                    if (this.body.y < tank.waterline + 70) {
+                        this.body.y += .3
+                    }
+                    if (this.body.y < tank.waterline + 60) {
+                        this.body.y += .3
+                    }
+                    if (this.body.y < tank.waterline + 50) {
+                        this.body.y += .3
+                    }
+                    if (this.body.y < tank.waterline + 30) {
+                        this.body.y += .3
+                    }
+                    if (this.body.y < tank.waterline + 25) {
+                        this.body.y += 1
+                    }
+                    if (this.body.y < tank.waterline + 20) {
+                        this.body.y += 1
+                    }
+                } else if (this.body.y > 690) {
+                    this.angle += this.spindir
+                    this.body.y--
+                } else {
+
+                    if (Math.random() < .1) {
+                        this.angle += this.spindir
+                    }
+
+                    if (Math.random() < .07) {
+                        this.spindir = (Math.random() - .5) / 20
+                    }
+
+                }
+                this.hunger -= .009 //01
+            }
         }
     }
 
@@ -3334,7 +3867,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.step %= 6
                 }
                 this.foodtick++
-                if (this.foodtick % 610 == 0) { //630
+                if (this.foodtick % 630 == 0) { //630
                     let food = new Food(this.body)
                     food.seed = 0
                     food.seedrate = .11 //09 //07 //055
@@ -3360,7 +3893,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.step %= 1
                 }
                 this.foodtick++
-                if (this.foodtick % 490 == 0) { //510
+                if (this.foodtick % 510 == 0) { //510
                     let food = new Food(this.body)
                     food.seed = 1
                     food.seedrate = .09 //65 //45 //35
@@ -3735,15 +4268,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
         // canvas_context.drawImage(canvas,0,0)
 
-        if (keysPressed['4'] && recording == 0) {
-            recording = 1
-            video_recorder.record()
-        }
-        if (keysPressed['5'] && recording == 1) {
-            recording = 0
-            video_recorder.stop()
-            video_recorder.download('File Name As A String.webm')
-        }
+        // if (keysPressed['4'] && recording == 0) {
+        //     recording = 1
+        //     video_recorder.record()
+        // }
+        // if (keysPressed['5'] && recording == 1) {
+        //     recording = 0
+        //     video_recorder.stop()
+        //     video_recorder.download('File Name As A String.webm')
+        // }
 
 
     }
