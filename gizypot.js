@@ -458,6 +458,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.strokeWidth = strokeWidth
             this.strokeColor = strokeColor
         }
+        anchorCheck() {
+            if (this.anchored == 1) {
+                this.x = this.anchor.x
+                this.y = this.anchor.y
+                this.anchor.y -= .1
+            }
+        }
         draw() {
             canvas_context.lineWidth = this.strokeWidth
             canvas_context.strokeStyle = this.color
@@ -1317,9 +1324,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
 
-    let imageNames = ['anchorfish.png', 'clownfish.png', "clamfly.png", 'hogfish.png', 'eyepeller.png', 'pufftacle.png', 'gulperpuffmouth.png', "froggair.png", "pomanatee.png", "nauti.png"]
+    let imageNames = ['anchorfish.png', 'clownfish.png', "clamfly.png", 'hogfish.png', 'eyepeller.png', 'pufftacle.png', 'gulperpuffmouth.png', "froggair.png", "pomanatee.png", "nauti.png", "balloonfisher.png"]
     let plantImages = ['seaweed.png', "bush.png"]
-    let imageNamesInv = ['anchorfishi.png', 'clownfishi.png', "clamflyi.png", 'hogfishi.png', 'eyepelleri.png', 'pufftaclei.png ', 'gulperpuffmouth.png', "froggair.png","pomanatee.png", "nauti.png"]
+    let imageNamesInv = ['anchorfishi.png', 'clownfishi.png', "clamflyi.png", 'hogfishi.png', 'eyepelleri.png', 'pufftaclei.png ', 'gulperpuffmouth.png', "froggair.png", "pomanatee.png", "nauti.png", "balloonfisher.png"]
     let predatorMouths = ['gulperpuffmouth.png', 'gulperpuffmouth.png']
     let predatorMouthsInv = ['gulperpuffmouth.png', 'gulperpuffmouth.png']
     let predatorFull = ['gulperpufffull.png', 'gulperpufffull.png']
@@ -1349,10 +1356,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (this.fishflag == 1) {
                 this.tapped = 1
                 let image = new Image()
-                let tyep = Math.min(Math.max(this.type, 0), 9)
+                let tyep = Math.min(Math.max(this.type, 0), 10)
                 this.type = tyep
                 image.src = imageNames[tyep]
-                canvas_context.drawImage(image, 0, 0, image.height, image.height, 1280 - 64, 0, 64, 64)
+                if (tyep != 10) {
+                    canvas_context.drawImage(image, 0, 0, image.height, image.height, 1280 - 64, 0, 64, 64)
+                } else if (tyep == 10) {
+                    canvas_context.drawImage(image, 0, 0, 48, 96, 1280 - 64, 0, 64, 128)
+                }
 
                 canvas_context.fillStyle = "white"
                 canvas_context.fillText("Cost: " + ((tyep * 50) + 50), 1100, 40)
@@ -1381,17 +1392,35 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (keysPressed['q']) {
                 this.clearFlags()
                 this.fishflag = 1
+                this.type++
+                if (this.fishflag == 1) {
+                    this.type %= 11
+                } else if (this.plantflag == 1) {
+                    this.type %= 2
+                }
             } else if (keysPressed['w']) {
                 this.clearFlags()
                 this.plantflag = 1
+                this.type++
+                if (this.fishflag == 1) {
+                    this.type %= 11
+                } else if (this.plantflag == 1) {
+                    this.type %= 2
+                }
             } else if (keysPressed['e']) {
                 this.clearFlags()
                 this.foodflag = 1
-            }
-            if (keysPressed[' '] || keysPressed['m'] ) {
                 this.type++
                 if (this.fishflag == 1) {
-                    this.type %= 10
+                    this.type %= 11
+                } else if (this.plantflag == 1) {
+                    this.type %= 2
+                }
+            }
+            if (keysPressed[' '] || keysPressed['m']) {
+                this.type++
+                if (this.fishflag == 1) {
+                    this.type %= 11
                 } else if (this.plantflag == 1) {
                     this.type %= 2
                 }
@@ -1408,7 +1437,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         act() {
             if (this.fishflag == 1) {
-                let tyep = Math.min(Math.max(this.type, 0), 9)
+                let tyep = Math.min(Math.max(this.type, 0), 10)
                 let p = new Animal(this.tip.x, this.tip.y, tyep)
                 let wet = 0
                 if (tank.money >= (50 + (tyep * 50))) {
@@ -1478,7 +1507,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     if (Math.random() < this.seedrate) {
                         let plant = new Plant(this.body.x, this.body.y, this.seed)
 
-                        if (tank.plants.length < 250) {
+                        let planttype = 0
+                        for (let t = 0; t < tank.plants.length; t++) {
+                            if (this.seed == tank.plants[t].type) {
+                                planttype++
+                            }
+                        }
+
+
+                        if (planttype < 200) {
                             if (this.seed == 0) {
                                 tank.plants.push(plant)
                             } else {
@@ -1528,6 +1565,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     class Animal {
         constructor(x, y, type, predator = 0) {
+            this.flightime = 100
             this.activityburst = 0
             this.pdir = 0
             this.size = .5
@@ -1558,7 +1596,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.link = new LineOP(this.body, this.body)
             this.target = this.body
             this.body.marked = 1
-            this.hunger = (Math.random() * 50) + 25
+            this.hunger = (Math.random() * 40) + 40
             this.hungerstate = 0
             this.dying = -1
             this.angle = Math.random() * 2 * Math.PI
@@ -1577,21 +1615,30 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
 
             if (this.type == 7) {
-                this.agemax *= 2.1
+                this.agemax *= 2.033
                 this.reprate *= .5
             }
             if (this.type == 8) {
-                this.agemax *= 4.1
+                this.agemax *= 4.05
                 this.reprate *= .25
             }
             if (this.type == 9) {
                 this.agemax *= 5
                 this.reprate *= .198
             }
+            if (this.type == 10) {
+                this.agemax *= 3
+                this.reprate = .0000769 * .707 //5 //69 ////707
+            }
+
+            this.subbody = new Circle(this.body.x, this.body.y + (this.size * 76), 18, "blue")
         }
         draw() {
-            if(this.hunger < 50){
+            if (this.hunger < 50) {
                 this.reprate *= .9999
+                if (this.type == 6) {
+                    this.reprate *= .9999
+                }
             }
             if (this.size < 1) {
                 this.size *= this.growthrate
@@ -1599,7 +1646,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (this.predator == 1 || this.type == 7) {
                     this.body.radius = 24 * this.size
                 }
-                if ( this.type == 8) {
+                if (this.type == 8) {
+                    this.body.radius = 32 * this.size
+                }
+                if (this.type == 10) {
                     this.body.radius = 32 * this.size
                 }
             } else {
@@ -1610,7 +1660,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
                 if (Math.random() < this.reprate) {
-                    if (tank.animals.length < 100 ||  (tank.animals.length < 105 && this.type == 6) ) {
+                    if (tank.animals.length < 120 || (tank.animals.length < 125 && this.type == 6)) {
                         let wet = 0
                         for (let t = 0; t < tank.animals.length; t++) {
                             if (tank.animals[t] != this) {
@@ -1635,7 +1685,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (this.body.y > 704) {
                 this.sdir = -2
             }
+            let jbreak = 0
             while (this.body.y > 704) {
+                jbreak++
+                if (jbreak > 1000) {
+                    break
+                }
                 this.body.y--
             }
             if (tank.food.length == 0) {
@@ -1654,12 +1709,21 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (this.body.radius < 8) {
                     this.marked = 1
                 } else {
-                    if (this.predator != 1 && this.type != 7 && this.type != 8) {
+                    if (this.type == 10) {
+                        canvas_context.drawImage(this.image, this.step * 48, 0, 48, 96, this.body.x - this.body.radius, this.body.y - this.body.radius, this.body.radius * 2, this.body.radius * 4)
+                        if (this.body.radius > 16) {
+                            this.body.radius *= .99
+                        } else {
+                            this.body.radius *= .99995 //997
+                        }
+                        this.body.xmom *= .9
+                        this.body.ymom *= .9
+                    } else if (this.predator != 1 && this.type != 7 && this.type != 8) {
                         canvas_context.drawImage(this.image, this.step * 32, 0, 32, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, this.body.radius * 2, this.body.radius * 2)
                         this.body.radius *= .9995 //997
                         this.body.xmom *= .9
                         this.body.ymom *= .9
-                    } else   if ( this.type == 8) {
+                    } else if (this.type == 8) {
                         canvas_context.drawImage(this.image, this.step * 48, 0, 48, 48, this.body.x - this.body.radius, this.body.y - this.body.radius, this.body.radius * 2, this.body.radius * 2)
                         this.body.radius *= .99975 //997
                         this.body.xmom *= .9
@@ -1685,10 +1749,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         this.body.frictiveMove()
                     } else {
                         let wet = 0
-                        for (let k = 0; k < tank.floors.length; k++) {
-                            if (tank.floors[k].x < this.body.x + 8 && tank.floors[k].x + tank.floors[k].width > this.body.x - 8) {
-                                wet = 1
-                            }
+                        if (tank.inFloor(this.body.x)) {
+                            wet = 1
                         }
                         if (wet == 1) {
                             if (this.body.ymom > 0) {
@@ -1697,6 +1759,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                             this.body.ymom -= .6
                             this.body.frictiveMove()
                         } else {
+                            this.body.friction = .9
+                            this.body.ymom += .3
+                            this.body.frictiveMove()
                             // this.type = -1 //what the heck is this anyway?
                         }
                     }
@@ -1785,7 +1850,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     } else {
                         this.body.y += this.sdir
                     }
-                    this.hunger -= .15
+                    this.hunger -= 1.051*.15
                 }
 
                 if (this.count % this.think == 0) {
@@ -1972,7 +2037,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     } else {
                         this.body.y += this.sdir
                     }
-                    this.hunger -= .161
+                    this.hunger -= 1.051*.161
                 }
 
                 if (this.count % this.think == 0) {
@@ -2105,7 +2170,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             if (this.type == 2) {
                 //clammoth
-                this.hunger -= .019 //003 //009
+                this.hunger -= 1.051*.019 //003 //009
                 this.weight = .9
                 this.step++
                 if (this.hunger > 50) {
@@ -2172,17 +2237,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
 
-                        if(below == 0){
-                            if(this.body.y < tank.waterline){
-                                if(Math.abs(this.body.xmom) < 5){
-                                    this.body.xmom*=1.1
-                                }
-                            }else{
-                                if(Math.abs(this.body.xmom) < 5){
-                                    this.body.xmom*=1.001
+                            if (below == 0) {
+                                if (this.body.y < tank.waterline) {
+                                    if (Math.abs(this.body.xmom) < 5) {
+                                        this.body.xmom *= 1.1
+                                    }
+                                } else {
+                                    if (Math.abs(this.body.xmom) < 5) {
+                                        this.body.xmom *= 1.001
+                                    }
                                 }
                             }
-                        }
                             tank.food[t].link.target = this.body
                             if (tank.food[t].body.doesPerimeterTouch(this.body)) {
                                 if (tank.food[t].body.shape == 1) {
@@ -2218,15 +2283,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         }
                     }
                     if (Math.random() < .02) {
-                        this.xmom = Math.sign(Math.random()-.5)
+                        this.xmom = Math.sign(Math.random() - .5)
                         if (this.body.y < tank.waterline) {
-                        this.xdir = Math.random() - .5
-                        this.ydir = Math.random() - .5
-                        }else{
                             this.xdir = Math.random() - .5
-                            if(Math.random()<.5){
-                                this.ydir = Math.abs(Math.random() - .5)*-2
-                            }else{
+                            this.ydir = Math.random() - .5
+                        } else {
+                            this.xdir = Math.random() - .5
+                            if (Math.random() < .5) {
+                                this.ydir = Math.abs(Math.random() - .5) * -2
+                            } else {
                                 this.ydir = Math.random() - .5
                             }
 
@@ -2275,12 +2340,24 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 } else {
                     if (this.body.x > (tank.floors[h].x - 8) && this.body.x < (tank.floors[h].x + tank.floors[h].width) + 8) {
                         if (this.body.y > tank.waterline) {
+                            let jbreak = 0
                             while (tank.floors[h].doesPerimeterTouch(this.body)) {
+
+                                jbreak++
+                                if (jbreak > 1000) {
+                                    break
+                                }
                                 this.body.y += .1
                                 this.ydir = Math.abs(this.ydir)
                             }
                         } else {
+                            let jbreak = 0
                             while (tank.floors[h].doesPerimeterTouch(this.body)) {
+
+                                jbreak++
+                                if (jbreak > 1000) {
+                                    break
+                                }
                                 this.body.y -= .1
                                 this.ydir = -Math.abs(this.ydir)
                             }
@@ -2406,7 +2483,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     } else {
                         this.body.y += this.sdir
                     }
-                    this.hunger -= .105 //07
+                    this.hunger -= 1.051*.105 //07
                 }
 
                 if (this.count % this.think == 0) {
@@ -2654,7 +2731,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
 
                 }
-                this.hunger -= .02 //01
+                this.hunger -= 1.051*.02 //01
             }
             if (this.type == 5) {
                 this.weight = 1.4
@@ -2782,7 +2859,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
 
                 }
-                this.hunger -= .005 //002
+                this.hunger -= 1.051*.005 //002
             }
 
             if (this.type == 6) {
@@ -2826,7 +2903,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         let min = 99999999
 
                         for (let t = 0; t < tank.animals.length; t++) {
-                            if(tank.animals[t].type == 9){
+                            if (tank.animals[t].type == 9) {
                                 continue
                             }
                             if (this == tank.animals[t] || tank.animals[t].body.radius >= 16) {
@@ -2869,17 +2946,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
-                            if (Math.sign(this.body.x - this.target.x) != this.dir) {
-                                if (this.dirshift <= -10) {
-                                    this.dirshift = 40
-                                }
+                        if (Math.sign(this.body.x - this.target.x) != this.dir) {
+                            if (this.dirshift <= -10) {
+                                this.dirshift = 40
                             }
+                        }
                     } else {
                         this.body.y += (this.sdir * 1)
                         this.hungerstate = 0
                         this.mouthdir = 0
                     }
-                    this.hunger -= .5 //.25
+                    this.hunger -= 1.051*.5 //.25
                     // console.log(this.hunger)
                 }
 
@@ -3112,7 +3189,140 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (this.body.y < tank.waterline + 20) {
                     this.body.y += 1
                 }
+
+
+                if (this.hunger < 70 || this.activityburst == 1) {
+                    let dif = Math.max(this.hunger - 50, 1)
+                    let mag = (20 - dif) / 20
+                    if (this.activityburst == 1) {
+                        mag = .5
+                    }
+
+                    let dry = 0
+                    if (this.hunger < 50) {
+                        if (!tank.inFloor(this.body.x)) {
+                            let wet = 0
+                            for (let e = 0; e < tank.animals.length; e++) {
+                                if (tank.animals[e].type == 2 && tank.animals[e].body.y < tank.waterline) {
+                                    wet = 1
+                                    break
+                                }
+                            }
+                            if (wet == 1) {
+                                if (below != 1) {
+                                    dry = 1
+                                }
+                                if (this.activityburst == 1) {
+                                    dry = 1
+                                }
+                            }
+                        }
+                    }
+
+                    if (dry == 1 && this.flightime > 90 || this.body.y < tank.waterline) {
+                        let point = new Point(this.body.x + ((Math.random() - .5) * 20), this.body.y - 100)
+                        this.angle = (new LineOP(point, this.body)).angle() + (Math.PI / 2)
+                        // mag *= 10
+                        if (this.body.y < tank.waterline) {
+                            this.flightime--
+                        }
+                        if (this.flightime > 0) {
+                            mag = this.flightime / 18
+                            this.body.x -= Math.cos(this.angle + (Math.PI / 2)) * mag
+                            this.body.y -= Math.sin(this.angle + (Math.PI / 2)) * mag
+                            this.body.x -= Math.cos(this.angle + (Math.PI / 2)) * 1 * mag
+                            this.body.y -= Math.sin(this.angle + (Math.PI / 2)) * 1 * mag
+                        }
+                    } else {
+
+                        // if(this.flightime < 50){
+                        //     let point = new Point(this.body.x + ((Math.random() - .5) * 20), this.body.y + 100)
+                        //     this.angle = (new LineOP(point, this.body)).angle() - (Math.PI / 2)
+                        // }
+                        this.body.x -= Math.cos(this.angle + (Math.PI / 2)) * mag
+                        this.body.y -= Math.sin(this.angle + (Math.PI / 2)) * mag
+                        this.body.x -= Math.cos(this.angle + (Math.PI / 2)) * below * mag
+                        this.body.y -= Math.sin(this.angle + (Math.PI / 2)) * below * mag
+                    }
+                }
+                
+
+
+                // if (this.count % this.think == 0) {
                 if (this.hunger < 50) {
+                    if (this.hungerstate == 0) {
+                        if (this.dir == 1) {
+                            this.mouthdir = 0
+                        } else if (this.dir != 1) {
+                            this.mouthdir = 22
+                        }
+                    }
+                    this.hungerstate = 1
+                    let min = 99999999
+
+                    for (let t = 0; t < tank.animals.length; t++) {
+                        if (2 != tank.animals[t].type) {
+                            continue
+                        }
+                        if (this == tank.animals[t] || tank.animals[t].body.radius >= 17) {
+                            continue
+                        }
+                        if (tank.animals[t].body.y > tank.waterline) {
+                            below = 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                    }
+                    for (let t = 0; t < tank.animals.length; t++) {
+
+                        if (2 != tank.animals[t].type) {
+                            continue
+                        }
+                        if (this == tank.animals[t] || tank.animals[t].body.radius >= 17) {
+                            continue
+                        }
+                        if (tank.animals[t].body.y > tank.waterline) {
+                            below = 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                        tank.animals[t].link.target = this.body
+                        if (min > tank.animals[t].link.hypotenuse()) {
+                            min = tank.animals[t].link.hypotenuse()
+                            this.target = tank.animals[t].body
+                            this.ypdir = Math.sign(this.target.y - this.body.y) * 2
+                            this.angle = tank.animals[t].link.angle() + (Math.PI / 2)
+                            // if(this.bump != 0){
+                            this.angle += (Math.PI / 2) * this.bump
+                            if (this.body.doesPerimeterTouch(this.target)) {
+                                tank.animals[t].dying = 1
+                                tank.animals[t].body.radius = .1
+                                tank.animals[t].hunger = -100
+                                tank.animals[t].body.marked = 1
+                                tank.animals[t].marked = 1
+                                this.hunger += 200//tank.animals[t].calories
+                                // tank.animals[t].body.shapes.splice(0, 1)
+                                // this.hunger%=100
+                            }
+                            if (Math.sign(this.body.x - tank.animals[t].body.x) != this.dir) {
+                                if (this.dirshift <= -10) {
+                                    this.dirshift = 40
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    this.body.y += (this.sdir * 1)
+                    this.hungerstate = 0
+                    this.mouthdir = 0
+                }
+
+
+                if (this.hunger < 40 ) { //25 leads to low reproduction
                     let min = 99999999
 
                     for (let t = 0; t < tank.food.length; t++) {
@@ -3136,7 +3346,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         tank.food[t].link.target = this.body
                         if (tank.food[t].body.doesPerimeterTouch(this.body)) {
                             if (tank.food[t].body.shape == 1) {
-                                this.hunger += (tank.food[t].calories*2.5)
+                                this.hunger += tank.food[t].calories
                                 tank.food[t].body.shapes.splice(0, 1)
                                 break
                             }
@@ -3148,7 +3358,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                             // if(this.bump != 0){
                             this.angle += (Math.PI / 2) * this.bump
                             // }
-                            if (min < 18) {
+                            if (min < this.body.radius*1.25) {
                                 tank.food[t].marked = 1
                                 this.hunger += tank.food[t].calories
                                 // tank.food[t].body.shapes.splice(0, 1)
@@ -3156,98 +3366,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         }
                     }
                 }
-
-                
-
-                // if (this.count % this.think == 0) {
-                    if (this.hunger < 50) {
-                        if (this.hungerstate == 0) {
-                            if (this.dir == 1) {
-                                this.mouthdir = 0
-                            } else if (this.dir != 1) {
-                                this.mouthdir = 22
-                            }
-                        }
-                        this.hungerstate = 1
-                        let min = 99999999
-
-                        for (let t = 0; t < tank.animals.length; t++) {
-                            if (2 != tank.animals[t].type) {
-                                continue
-                            }
-                            if (this == tank.animals[t] || tank.animals[t].body.radius >= 17) {
-                                continue
-                            }
-                            if (tank.animals[t].body.y > tank.waterline) {
-                                below = 1
-                            } else {
-                                if (below == 1) {
-                                    continue
-                                }
-                            }
-                        }
-                        for (let t = 0; t < tank.animals.length; t++) {
-
-                            if (2 != tank.animals[t].type) {
-                                continue
-                            }
-                            if (this == tank.animals[t] || tank.animals[t].body.radius >= 17) {
-                                continue
-                            }
-                            if (tank.animals[t].body.y > tank.waterline) {
-                                below = 1
-                            } else {
-                                if (below == 1) {
-                                    continue
-                                }
-                            }
-                            tank.animals[t].link.target = this.body
-                            if (min > tank.animals[t].link.hypotenuse()) {
-                                min = tank.animals[t].link.hypotenuse()
-                                this.target = tank.animals[t].body
-                                this.ypdir = Math.sign(this.target.y - this.body.y) * 2
-                                this.angle = tank.animals[t].link.angle() + (Math.PI / 2)
-                                // if(this.bump != 0){
-                                this.angle += (Math.PI / 2) * this.bump
-                                if (this.body.doesPerimeterTouch(this.target)) {
-                                    tank.animals[t].dying = 1
-                                    tank.animals[t].body.radius = .1
-                                    tank.animals[t].hunger = -100
-                                    tank.animals[t].body.marked = 1
-                                    tank.animals[t].marked = 1
-                                    this.hunger += 200//tank.animals[t].calories
-                                    // tank.animals[t].body.shapes.splice(0, 1)
-                                    // this.hunger%=100
-                                }
-                                if (Math.sign(this.body.x - tank.animals[t].body.x) != this.dir) {
-                                    if (this.dirshift <= -10) {
-                                        this.dirshift = 40
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        this.body.y += (this.sdir * 1)
-                        this.hungerstate = 0
-                        this.mouthdir = 0
-                    }
-                    // this.hunger -= .5 //.25
-                    // console.log(this.hunger)
+                // this.hunger -= 1.051*.5 //.25
+                // console.log(this.hunger)
                 // }
 
 
 
 
-                if (this.hunger < 70 || this.activityburst == 1) {
-                    let dif = Math.max(this.hunger - 50, 1)
-                    let mag = (20 - dif) / 20
-                    if (this.activityburst == 1) {
-                        mag = .5
-                    }
-                    this.body.x -= Math.cos(this.angle + (Math.PI / 2)) * mag
-                    this.body.y -= Math.sin(this.angle + (Math.PI / 2)) * mag
-                    this.body.x -= Math.cos(this.angle + (Math.PI / 2)) * below * mag
-                    this.body.y -= Math.sin(this.angle + (Math.PI / 2)) * below * mag
+                if (this.body.y > tank.waterline) {
+                    this.flightime += 2
+                }
+                if (this.flightime > 100) {
+                    this.flightime = 100
                 }
                 if (this.body.x < 5) {
                     this.body.x++
@@ -3296,7 +3426,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
 
                 }
-                this.hunger -= .009 //01
+                this.hunger -= 1.051*.009 //01
             }
             if (this.type == 8) {
                 this.weight = 12.4
@@ -3339,13 +3469,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                             }
                         }
                     }
-                    if(Math.cos(this.angle + (Math.PI / 2)) < 0){
+                    if (Math.cos(this.angle + (Math.PI / 2)) < 0) {
                         this.step %= 5
-                    }else{
+                    } else {
 
-                        this.step-=5
+                        this.step -= 5
                         this.step %= 5
-                        this.step+=5
+                        this.step += 5
                     }
                 }
                 if (this.hunger < 20) {
@@ -3389,7 +3519,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         tank.food[t].link.target = this.body
                         if (tank.food[t].body.doesPerimeterTouch(this.body)) {
                             if (tank.food[t].body.shape == 1) {
-                                this.hunger += (tank.food[t].calories*2.5)
+                                this.hunger += (tank.food[t].calories * 2.5)
                                 tank.food[t].body.shapes.splice(0, 1)
                                 break
                             }
@@ -3410,82 +3540,82 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
 
-                
+
 
                 // if (this.count % this.think == 0) {
-                    if (this.hunger < 20) {
-                        if (this.hungerstate == 0) {
-                            if (this.dir == 1) {
-                                this.mouthdir = 0
-                            } else if (this.dir != 1) {
-                                this.mouthdir = 22
-                            }
+                if (this.hunger < 20) {
+                    if (this.hungerstate == 0) {
+                        if (this.dir == 1) {
+                            this.mouthdir = 0
+                        } else if (this.dir != 1) {
+                            this.mouthdir = 22
                         }
-                        this.hungerstate = 1
-                        let min = 99999999
-
-                        for (let t = 0; t < tank.plants.length; t++) {
-                            if (0 != tank.plants[t].type) {
-                                continue
-                            }
-                            if (this == tank.plants[t] || tank.plants[t].body.radius >= 17) {
-                                continue
-                            }
-                            if (tank.plants[t].body.y > tank.waterline) {
-                                below = 1
-                            } else {
-                                if (below == 1) {
-                                    continue
-                                }
-                            }
-                        }
-                        for (let t = 0; t < tank.plants.length; t++) {
-
-                            if (0 != tank.plants[t].type) {
-                                continue
-                            }
-                            if (this == tank.plants[t] || tank.plants[t].body.radius >= 17) {
-                                continue
-                            }
-                            if (tank.plants[t].body.y > tank.waterline) {
-                                below = 1
-                            } else {
-                                if (below == 1) {
-                                    continue
-                                }
-                            }
-                            tank.plants[t].link.target = this.body
-                            if (min > tank.plants[t].link.hypotenuse()) {
-                                min = tank.plants[t].link.hypotenuse()
-                                this.target = tank.plants[t].body
-                                this.ypdir = Math.sign(this.target.y - this.body.y) * 2
-                                this.angle = tank.plants[t].link.angle() + (Math.PI / 2)
-                                // if(this.bump != 0){
-                                this.angle += (Math.PI / 2) * this.bump
-                                if (this.body.doesPerimeterTouch(this.target)) {
-                                    tank.plants[t].dying = 1
-                                    tank.plants[t].body.radius = .1
-                                    tank.plants[t].hunger = -100
-                                    tank.plants[t].body.marked = 1
-                                    tank.plants[t].marked = 1
-                                    this.hunger += 200//tank.plants[t].calories
-                                    // tank.plants[t].body.shapes.splice(0, 1)
-                                    // this.hunger%=100
-                                }
-                                if (Math.sign(this.body.x - tank.plants[t].body.x) != this.dir) {
-                                    if (this.dirshift <= -10) {
-                                        this.dirshift = 40
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        this.body.y += (this.sdir * 1)
-                        this.hungerstate = 0
-                        this.mouthdir = 0
                     }
-                    // this.hunger -= .5 //.25
-                    // console.log(this.hunger)
+                    this.hungerstate = 1
+                    let min = 99999999
+
+                    for (let t = 0; t < tank.plants.length; t++) {
+                        if (0 != tank.plants[t].type) {
+                            continue
+                        }
+                        if (this == tank.plants[t] || tank.plants[t].body.radius >= 17) {
+                            continue
+                        }
+                        if (tank.plants[t].body.y > tank.waterline) {
+                            below = 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                    }
+                    for (let t = 0; t < tank.plants.length; t++) {
+
+                        if (0 != tank.plants[t].type) {
+                            continue
+                        }
+                        if (this == tank.plants[t] || tank.plants[t].body.radius >= 17) {
+                            continue
+                        }
+                        if (tank.plants[t].body.y > tank.waterline) {
+                            below = 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                        tank.plants[t].link.target = this.body
+                        if (min > tank.plants[t].link.hypotenuse()) {
+                            min = tank.plants[t].link.hypotenuse()
+                            this.target = tank.plants[t].body
+                            this.ypdir = Math.sign(this.target.y - this.body.y) * 2
+                            this.angle = tank.plants[t].link.angle() + (Math.PI / 2)
+                            // if(this.bump != 0){
+                            this.angle += (Math.PI / 2) * this.bump
+                            if (this.body.doesPerimeterTouch(this.target)) {
+                                tank.plants[t].dying = 1
+                                tank.plants[t].body.radius = .1
+                                tank.plants[t].hunger = -100
+                                tank.plants[t].body.marked = 1
+                                tank.plants[t].marked = 1
+                                this.hunger += 200//tank.plants[t].calories
+                                // tank.plants[t].body.shapes.splice(0, 1)
+                                // this.hunger%=100
+                            }
+                            if (Math.sign(this.body.x - tank.plants[t].body.x) != this.dir) {
+                                if (this.dirshift <= -10) {
+                                    this.dirshift = 40
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    this.body.y += (this.sdir * 1)
+                    this.hungerstate = 0
+                    this.mouthdir = 0
+                }
+                // this.hunger -= 1.051*.5 //.25
+                // console.log(this.hunger)
                 // }
 
 
@@ -3549,7 +3679,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
 
                 }
-                this.hunger -= .009 //01
+                this.hunger -= 1.051*.009 //01
             }
             if (this.type == 9) {
                 this.weight = 4.4
@@ -3592,26 +3722,26 @@ window.addEventListener('DOMContentLoaded', (event) => {
                             }
                         }
                     }
-                    if(Math.cos(this.angle + (Math.PI / 2)) < 0){
+                    if (Math.cos(this.angle + (Math.PI / 2)) < 0) {
                         this.step %= 4
-                    }else{
+                    } else {
 
-                        this.step-=4
+                        this.step -= 4
                         this.step %= 4
-                        this.step+=4
+                        this.step += 4
                     }
                 }
-                if(Math.cos(this.angle + (Math.PI / 2)) < 0){
+                if (Math.cos(this.angle + (Math.PI / 2)) < 0) {
                     if (this.hunger < 20) {
-                        canvas_context.drawImage(this.imagei, (this.step * 32), 0, 31, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2)-1, this.body.radius * 2)
+                        canvas_context.drawImage(this.imagei, (this.step * 32), 0, 31, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2) - 1, this.body.radius * 2)
                     } else {
-                        canvas_context.drawImage(this.image, (this.step * 32), 0, 31, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2)-1, this.body.radius * 2)
+                        canvas_context.drawImage(this.image, (this.step * 32), 0, 31, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2) - 1, this.body.radius * 2)
                     }
-                }else{
+                } else {
                     if (this.hunger < 20) {
-                        canvas_context.drawImage(this.imagei, (this.step * 32)+1, 0,31, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2)-1, this.body.radius * 2)
+                        canvas_context.drawImage(this.imagei, (this.step * 32) + 1, 0, 31, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2) - 1, this.body.radius * 2)
                     } else {
-                        canvas_context.drawImage(this.image, (this.step * 32)+1, 0, 31, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2)-1, this.body.radius * 2)
+                        canvas_context.drawImage(this.image, (this.step * 32) + 1, 0, 31, 32, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2) - 1, this.body.radius * 2)
                     }
                 }
 
@@ -3650,7 +3780,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         tank.food[t].link.target = this.body
                         if (tank.food[t].body.doesPerimeterTouch(this.body)) {
                             if (tank.food[t].body.shape == 1) {
-                                this.hunger += (tank.food[t].calories*2.5)
+                                this.hunger += (tank.food[t].calories * 2.5)
                                 tank.food[t].body.shapes.splice(0, 1)
                                 break
                             }
@@ -3671,82 +3801,82 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
 
-                
+
 
                 // if (this.count % this.think == 0) {
-                    if (this.hunger < 20) {
-                        if (this.hungerstate == 0) {
-                            if (this.dir == 1) {
-                                this.mouthdir = 0
-                            } else if (this.dir != 1) {
-                                this.mouthdir = 22
-                            }
+                if (this.hunger < 20) {
+                    if (this.hungerstate == 0) {
+                        if (this.dir == 1) {
+                            this.mouthdir = 0
+                        } else if (this.dir != 1) {
+                            this.mouthdir = 22
                         }
-                        this.hungerstate = 1
-                        let min = 99999999
-
-                        for (let t = 0; t < tank.plants.length; t++) {
-                            if (0 != tank.plants[t].type) {
-                                continue
-                            }
-                            if (this == tank.plants[t] || tank.plants[t].body.radius >= 17) {
-                                continue
-                            }
-                            if (tank.plants[t].body.y > tank.waterline) {
-                                below = 1
-                            } else {
-                                if (below == 1) {
-                                    continue
-                                }
-                            }
-                        }
-                        for (let t = 0; t < tank.plants.length; t++) {
-
-                            if (0 != tank.plants[t].type) {
-                                continue
-                            }
-                            if (this == tank.plants[t] || tank.plants[t].body.radius >= 17) {
-                                continue
-                            }
-                            if (tank.plants[t].body.y > tank.waterline) {
-                                below = 1
-                            } else {
-                                if (below == 1) {
-                                    continue
-                                }
-                            }
-                            tank.plants[t].link.target = this.body
-                            if (min > tank.plants[t].link.hypotenuse()) {
-                                min = tank.plants[t].link.hypotenuse()
-                                this.target = tank.plants[t].body
-                                this.ypdir = Math.sign(this.target.y - this.body.y) * 2
-                                this.angle = tank.plants[t].link.angle() + (Math.PI / 2)
-                                // if(this.bump != 0){
-                                this.angle += (Math.PI / 2) * this.bump
-                                if (this.body.doesPerimeterTouch(this.target)) {
-                                    tank.plants[t].dying = 1
-                                    tank.plants[t].body.radius = .1
-                                    tank.plants[t].hunger = -100
-                                    tank.plants[t].body.marked = 1
-                                    tank.plants[t].marked = 1
-                                    this.hunger += 200//tank.plants[t].calories
-                                    // tank.plants[t].body.shapes.splice(0, 1)
-                                    // this.hunger%=100
-                                }
-                                if (Math.sign(this.body.x - tank.plants[t].body.x) != this.dir) {
-                                    if (this.dirshift <= -10) {
-                                        this.dirshift = 40
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        this.body.y += ((this.sdir * 1)*.1)
-                        this.hungerstate = 0
-                        this.mouthdir = 0
                     }
-                    // this.hunger -= .5 //.25
-                    // console.log(this.hunger)
+                    this.hungerstate = 1
+                    let min = 99999999
+
+                    for (let t = 0; t < tank.plants.length; t++) {
+                        if (0 != tank.plants[t].type) {
+                            continue
+                        }
+                        if (this == tank.plants[t] || tank.plants[t].body.radius >= 17) {
+                            continue
+                        }
+                        if (tank.plants[t].body.y > tank.waterline) {
+                            below = 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                    }
+                    for (let t = 0; t < tank.plants.length; t++) {
+
+                        if (0 != tank.plants[t].type) {
+                            continue
+                        }
+                        if (this == tank.plants[t] || tank.plants[t].body.radius >= 17) {
+                            continue
+                        }
+                        if (tank.plants[t].body.y > tank.waterline) {
+                            below = 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                        tank.plants[t].link.target = this.body
+                        if (min > tank.plants[t].link.hypotenuse()) {
+                            min = tank.plants[t].link.hypotenuse()
+                            this.target = tank.plants[t].body
+                            this.ypdir = Math.sign(this.target.y - this.body.y) * 2
+                            this.angle = tank.plants[t].link.angle() + (Math.PI / 2)
+                            // if(this.bump != 0){
+                            this.angle += (Math.PI / 2) * this.bump
+                            if (this.body.doesPerimeterTouch(this.target)) {
+                                tank.plants[t].dying = 1
+                                tank.plants[t].body.radius = .1
+                                tank.plants[t].hunger = -100
+                                tank.plants[t].body.marked = 1
+                                tank.plants[t].marked = 1
+                                this.hunger += 200//tank.plants[t].calories
+                                // tank.plants[t].body.shapes.splice(0, 1)
+                                // this.hunger%=100
+                            }
+                            if (Math.sign(this.body.x - tank.plants[t].body.x) != this.dir) {
+                                if (this.dirshift <= -10) {
+                                    this.dirshift = 40
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    this.body.y += ((this.sdir * 1) * .1)
+                    this.hungerstate = 0
+                    this.mouthdir = 0
+                }
+                // this.hunger -= 1.051*.5 //.25
+                // console.log(this.hunger)
                 // }
 
 
@@ -3810,8 +3940,349 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
 
                 }
-                this.hunger -= .009 //01
+                this.hunger -= 1.051*.009 //01
             }
+            if (this.type == 10) {
+                if (this.body.y + this.body.radius > tank.floors[0].y) {
+                    this.body.y--
+                }
+                if (this.body.y + this.body.radius > (tank.floors[0].y + 2)) {
+                    this.body.y--
+                }
+                this.subbody.x = this.body.x
+                if (this.hasAnchor != 1) {
+                    this.subbody.y = (this.body.y + (this.size * 76))
+                    this.slurp += .1
+                } else {
+                    this.subbody.y = (this.body.y + (this.size * 76)) - this.slurp
+                    this.slurp += .1
+                }
+                if (this.subbody.y - this.body.y < 7) {
+                    this.hasAnchor = 0
+                    this.eating.dying = 1
+                    this.eating.body.radius = .1
+                    this.eating.hunger = -100
+                    this.eating.body.marked = 1
+                    this.eating.marked = 1
+                    this.hunger += 500
+                }
+                // this.subbody.draw()
+                for (let t = 0; t < tank.animals.length; t++) {
+                    if (tank.animals[t] == this) {
+                        continue
+                    }
+                    if (tank.animals[t].type == 2) {
+                        continue
+                    }
+                    if (tank.animals[t].type == 9) {
+                        continue
+                    }
+                    if (tank.animals[t].type == 10) {
+                        continue
+                    }
+                    if (this.subbody.doesPerimeterTouch(tank.animals[t].body)) {
+                        if (this.hasAnchor != 1) {
+                            if (tank.animals[t].body.anchored != 1) {
+                                if (this.hunger < 50) {
+                                    tank.animals[t].body.anchored = 1
+                                    tank.animals[t].body.anchor = this.subbody
+                                    this.hasAnchor = 1
+                                    this.eating = tank.animals[t]
+                                    this.slurp = 0
+                                }
+                            }
+                        }
+                    }
+                }
+                this.weight = 40
+                canvas_context.translate(this.body.x, this.body.y)
+                // canvas_context.rotate(this.angle)
+                canvas_context.translate(-(this.body.x), -(this.body.y))
+                this.think = 10
+                this.count++
+                // if (Math.random() < .005) {
+                //     this.activityburst = 1
+                // }
+
+
+
+                this.scount += 1
+                if (this.scount >= 3) {
+                    if (this.hunger < 70) {
+                        if (this.hunger < 50) {
+                            if (this.scount >= 6) {
+                                this.step++
+                                this.scount = 0
+                            }
+                        } else if (this.hunger < 60) {
+                            if (this.scount >= 5) {
+                                this.step++
+                                this.scount = 0
+                            }
+                        } else if (this.hunger < 70) {
+                            if (this.scount >= 4) {
+                                this.step++
+                                this.scount = 0
+                            }
+                        }
+                    } else {
+                        if (this.scount >= 7 || this.activityburst == 1) {
+                            this.step++
+                            this.scount = 0
+                            if (Math.random() < .1) {
+                                this.activityburst = 0
+                            }
+                        }
+                    }
+                    this.step %= 10
+                }
+
+                if (Math.cos(this.angle + (Math.PI / 2)) < 0) {
+                    if (this.hunger < 20) {
+                        canvas_context.drawImage(this.imagei, (this.step * 48), 0, 48, 96, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2) - 1, this.body.radius * 4)
+                    } else {
+                        canvas_context.drawImage(this.image, (this.step * 48), 0, 48, 96, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2) - 1, this.body.radius * 4)
+                    }
+                } else {
+                    if (this.hunger < 20) {
+                        canvas_context.drawImage(this.imagei, (this.step * 48) + 0, 0, 48, 96, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2) - 1, this.body.radius * 4)
+                    } else {
+                        canvas_context.drawImage(this.image, (this.step * 48) + 0, 0, 48, 96, this.body.x - this.body.radius, this.body.y - this.body.radius, (this.body.radius * 2) - 1, this.body.radius * 4)
+                    }
+                }
+
+                canvas_context.translate(this.body.x, this.body.y)
+                // canvas_context.rotate(-this.angle)
+                canvas_context.translate(-(this.body.x), -(this.body.y))
+
+                let below = 0
+                // if (this.body.y < tank.waterline + 10) {
+                //     this.body.y += 1
+                // }
+                // if (this.body.y < tank.waterline + 20) {
+                //     this.body.y += 1
+                // }
+                if (this.hunger < 50) {
+                    let min = 99999999
+
+                    for (let t = 0; t < tank.food.length; t++) {
+                        if (tank.food[t].body.y > tank.waterline) {
+                            below = 1
+                            this.scount += 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                    }
+                    for (let t = 0; t < tank.food.length; t++) {
+                        if (tank.food[t].body.y > tank.waterline) {
+                            below = 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                        tank.food[t].link.target = this.body
+                        if (tank.food[t].body.doesPerimeterTouch(this.body)) {
+                            if (tank.food[t].body.shape == 1) {
+                                this.hunger += (tank.food[t].calories * 2.5)
+                                tank.food[t].body.shapes.splice(0, 1)
+                                break
+                            }
+                        }
+                        if (min > tank.food[t].link.hypotenuse()) {
+                            min = tank.food[t].link.hypotenuse()
+                            this.target = tank.food[t].body
+                            this.angle = tank.food[t].link.angle() + (Math.PI / 2)
+                            // if(this.bump != 0){
+                            this.angle += (Math.PI / 2) * this.bump
+                            // }
+                            if (min < 22) { //18
+                                tank.food[t].marked = 1
+                                this.hunger += tank.food[t].calories
+                                // tank.food[t].body.shapes.splice(0, 1)
+                            }
+                        }
+                    }
+                }
+
+
+
+                // if (this.count % this.think == 0) {
+                if (this.hunger < 50) {
+                    if (this.hungerstate == 0) {
+                        if (this.dir == 1) {
+                            this.mouthdir = 0
+                        } else if (this.dir != 1) {
+                            this.mouthdir = 22
+                        }
+                    }
+                    this.hungerstate = 1
+                    let min = 99999999
+
+                    for (let t = 0; t < tank.animals.length; t++) {
+                        if (2 != tank.animals[t].type) {
+                            continue
+                        }
+                        if (this == tank.animals[t] || tank.animals[t].body.radius >= 17) {
+                            continue
+                        }
+                        if (tank.animals[t].body.y > tank.waterline) {
+                            below = 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                    }
+                    for (let t = 0; t < tank.animals.length; t++) {
+
+                        if (2 != tank.animals[t].type) {
+                            continue
+                        }
+                        if (this == tank.animals[t] || tank.animals[t].body.radius >= 17) {
+                            continue
+                        }
+                        if (tank.animals[t].body.y > tank.waterline) {
+                            below = 1
+                        } else {
+                            if (below == 1) {
+                                continue
+                            }
+                        }
+                        tank.animals[t].link.target = this.body
+                        if (min > tank.animals[t].link.hypotenuse()) {
+                            min = tank.animals[t].link.hypotenuse()
+                            this.target = tank.animals[t].body
+                            this.link.target = tank.animals[t].body
+                            this.ypdir = Math.sign(this.target.y - this.body.y) * 2
+                            this.angle = tank.animals[t].link.angle() + (Math.PI / 2)
+                            // if(this.bump != 0){
+                            this.angle += (Math.PI / 2) * this.bump
+                            if (this.body.doesPerimeterTouch(this.target)) {
+                                tank.animals[t].dying = 1
+                                tank.animals[t].body.radius = .1
+                                tank.animals[t].hunger = -100
+                                tank.animals[t].body.marked = 1
+                                tank.animals[t].marked = 1
+                                this.hunger += 200//tank.animals[t].calories
+                                // tank.animals[t].body.shapes.splice(0, 1)
+                                // this.hunger%=100
+                            }
+                            if (Math.sign(this.body.x - tank.animals[t].body.x) != this.dir) {
+                                if (this.dirshift <= -10) {
+                                    this.dirshift = 40
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // this.body.y += (this.sdir * 1)
+                    this.hungerstate = 0
+                    this.mouthdir = 0
+                }
+                // this.hunger -= 1.051*.5 //.25
+                // console.log(this.hunger)
+                // }
+                if (this.hunger < 50) {
+                    this.body.x -= Math.cos(this.link.angle()) * .2
+                    this.body.y -= Math.sin(this.link.angle()) * .2
+
+                }
+
+
+
+                if (this.hunger < 70 || this.activityburst == 1) {
+                    let dif = Math.max(this.hunger - 50, 1)
+                    let mag = (20 - dif) / 20
+                    if (this.activityburst == 1) {
+                        mag = .5
+                    }
+                    this.body.x -= Math.cos(this.angle + (Math.PI / 2)) * mag
+                    this.body.y -= Math.sin(this.angle + (Math.PI / 2)) * mag
+                    this.body.x -= Math.cos(this.angle + (Math.PI / 2)) * below * mag
+                    this.body.y -= Math.sin(this.angle + (Math.PI / 2)) * below * mag
+                }
+                if (this.body.x < 15) {
+                    this.body.x++
+                }
+                if (this.body.x < 20) {
+                    this.body.x++
+                }
+                if (this.body.x > 1260) {
+                    this.body.x--
+                }
+                if (this.body.x > 1265) {
+                    this.body.x--
+                }
+
+                if (this.body.y < 70) {
+                    this.body.y += .3
+                }
+                if (this.body.y < 60) {
+                    this.body.y += .3
+                }
+                if (this.body.y < 50) {
+                    this.body.y += .3
+                }
+                if (this.body.y < 30) {
+                    this.body.y += .3
+                }
+                if (this.body.y < 25) {
+                    this.body.y += 1
+                }
+                if (this.body.y < 20) {
+                    this.body.y += 1
+                }
+                if (this.body.y < 10) {
+                    this.body.y += 2
+                }
+                if (this.body.y < 8) {
+                    this.body.y += 2
+                }
+                if (this.body.y < -10) {
+                    this.body.y += 5
+                }
+                if (this.body.y < tank.waterline + 50) {
+                    if (Math.random() < .2) {
+                        this.angle += this.spindir
+                    }
+                    if (this.body.y < 70) {
+                        this.body.y += .3
+                    }
+                    if (this.body.y < 60) {
+                        this.body.y += .3
+                    }
+                    if (this.body.y < 50) {
+                        this.body.y += .3
+                    }
+                    if (this.body.y < 30) {
+                        this.body.y += .3
+                    }
+                    if (this.body.y < 25) {
+                        this.body.y += 1
+                    }
+                    if (this.body.y < 20) {
+                        this.body.y += 1
+                    }
+                } else if (this.body.y > 690) {
+                    this.angle += this.spindir
+                    this.body.y--
+                } else {
+
+                    if (Math.random() < .1) {
+                        this.angle += this.spindir
+                    }
+
+                    if (Math.random() < .07) {
+                        this.spindir = (Math.random() - .5) / 20
+                    }
+
+                }
+                this.hunger -= 1.051*.005 ///0019
+            }
+
         }
     }
 
@@ -3840,7 +4311,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.link = new LineOP(this.body, this.body)
             this.target = this.body
             this.body.marked = 1
-            this.hunger = (Math.random() * 20) + 20
+            this.hunger = (Math.random() * 50) + 50
             this.hungerstate = 0
             this.dying = -1
             this.angle = Math.random() * 2 * Math.PI
@@ -3849,7 +4320,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.foodtick = Math.floor(Math.random() * 500)
         }
         draw() {
-            this.age++
+            let planttype = 0
+            for (let t = 0; t < tank.plants.length; t++) {
+                if (this.type == tank.plants[t].type) {
+                    planttype++
+                }
+            }
+            this.age += (planttype + 150) / 225 //100
             if (this.age > 16000) { //12000
                 if (Math.random() < .0004) {
                     this.marked = 1
@@ -3868,16 +4345,26 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
                 this.foodtick++
                 if (this.foodtick % 630 == 0) { //630
-                    let food = new Food(this.body)
-                    food.seed = 0
-                    food.seedrate = .11 //09 //07 //055
-                    food.moving = 1
-                    food.body.xmom = (Math.random() - .5) * 10
-                    food.body.radius = 1.5
-                    food.calories = 20
-                    food.body.color = "Yellow"
-                    food.body.reflect = 1
-                    food.body.ymom = -5
+                    let planttype = 0
+                    for (let t = 0; t < tank.food.length; t++) {
+                        if (this.type == tank.food[t].seed) {
+                            planttype++
+                        }
+                    }
+                    if(planttype < 150){
+                        let food = new Food(this.body)
+                        food.seed = 0
+                        food.seedrate = .12 //11 //09 //07 //055
+                        food.moving = 1
+                        food.body.xmom = (Math.random() - .5) * 10
+                        food.body.radius = 1.5
+                        food.calories = 20
+                        food.body.color = "Yellow"
+                        food.body.reflect = 1
+                        food.body.ymom = -5
+                    }else{
+                        this.foodtick--
+                    }
                 }
             }
             if (this.type == 1) {
@@ -3894,17 +4381,27 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
                 this.foodtick++
                 if (this.foodtick % 510 == 0) { //510
-                    let food = new Food(this.body)
-                    food.seed = 1
-                    food.seedrate = .09 //65 //45 //35
-                    food.moving = 1
-                    food.life = 1000
-                    food.body.xmom = (Math.random() - .5) * 7
-                    food.body.radius = 1
-                    food.body.color = "orange"
-                    food.calories = 15
-                    food.body.reflect = 1
-                    food.body.ymom = -10 + (Math.random() * 3)
+                    let planttype = 0
+                    for (let t = 0; t < tank.food.length; t++) {
+                        if (this.type == tank.food[t].seed) {
+                            planttype++
+                        }
+                    }
+                    if(planttype < 150){
+                        let food = new Food(this.body)
+                        food.seed = 1
+                        food.seedrate = .1 //09 //65 //45 //35
+                        food.moving = 1
+                        food.life = 1000
+                        food.body.xmom = (Math.random() - .5) * 7
+                        food.body.radius = 1
+                        food.body.color = "orange"
+                        food.calories = 25 //15
+                        food.body.reflect = 1
+                        food.body.ymom = -10 + (Math.random() * 3)
+                    }else{
+                        this.foodtick--
+                    }
                 }
             }
         }
@@ -3982,6 +4479,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             this.money += .015 * this.animals.length
             for (let t = 0; t < this.animals.length; t++) {
+                this.animals[t].body.anchorCheck()
+            }
+            for (let t = 0; t < this.animals.length; t++) {
                 this.animals[t].draw()
                 // this.animals[t].hunger-=.03
             }
@@ -3993,7 +4493,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 for (let k = 0; k < this.animals.length; k++) {
                     if (t != k) {
                         this.animals[t].link.target = this.animals[k].body
+                        let jbreak = 0
                         while (this.animals[t].link.hypotenuse() < this.animals[t].body.radius + this.animals[k].body.radius) {
+
+                            jbreak++
+                            if (jbreak > 1000) {
+                                break
+                            }
                             let cos = Math.cos(this.animals[t].link.angle())
                             let sin = Math.sin(this.animals[t].link.angle())
                             this.animals[t].body.x += cos / this.animals[t].weight
@@ -4021,7 +4527,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     if (t != k) {
                         this.food[t].link.target = this.food[k].body
                         let j = 0
+                        let jbreak = 0
                         while (this.food[t].link.hypotenuse() < this.food[t].body.radius + this.food[k].body.radius) {
+                            jbreak++
+                            if (jbreak > 1000) {
+                                break
+                            }
                             j++
                             if (j > 5) {
                                 break
@@ -4140,7 +4651,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                             }
 
 
+                            let jbreak = 0
                             while (this.floors[k].doesPerimeterTouch(this.food[t].body.shapes[y])) {
+
+                                jbreak++
+                                if (jbreak > 1000) {
+                                    break
+                                }
                                 this.food[t].body.shapes[y].y -= .1
                             }
 
