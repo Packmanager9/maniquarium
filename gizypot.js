@@ -14,99 +14,99 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
     let video_recorder
     let recording = 0
-    function CanvasCaptureToWEBM(canvas, bitrate) {
-        // the video_recorder is set to  '= new CanvasCaptureToWEBM(canvas, 4500000);' in the setup, 
-        // it uses the same canvas as the rest of the file.
-        // to start a recording call .record() on video_recorder
-        /*
-        for example, 
-        if(keysPressed['-'] && recording == 0){
-            recording = 1
-            video_recorder.record()
-        }
-        if(keysPressed['='] && recording == 1){
-            recording = 0
-            video_recorder.stop()
-            video_recorder.download('File Name As A String.webm')
-        }
-        */
-        this.record = Record
-        this.stop = Stop
-        this.download = saveToDownloads
-        let blobCaptures = []
-        let outputFormat = {}
-        let recorder = {}
-        let canvasInput = canvas.captureStream()
-        if (typeof canvasInput == undefined || !canvasInput) {
-            return
-        }
-        const video = document.createElement('video')
-        video.style.display = 'none'
+    // function CanvasCaptureToWEBM(canvas, bitrate) {
+    //     // the video_recorder is set to  '= new CanvasCaptureToWEBM(canvas, 4500000);' in the setup, 
+    //     // it uses the same canvas as the rest of the file.
+    //     // to start a recording call .record() on video_recorder
+    //     /*
+    //     for example, 
+    //     if(keysPressed['-'] && recording == 0){
+    //         recording = 1
+    //         video_recorder.record()
+    //     }
+    //     if(keysPressed['='] && recording == 1){
+    //         recording = 0
+    //         video_recorder.stop()
+    //         video_recorder.download('File Name As A String.webm')
+    //     }
+    //     */
+    //     this.record = Record
+    //     this.stop = Stop
+    //     this.download = saveToDownloads
+    //     let blobCaptures = []
+    //     let outputFormat = {}
+    //     let recorder = {}
+    //     let canvasInput = canvas.captureStream()
+    //     if (typeof canvasInput == undefined || !canvasInput) {
+    //         return
+    //     }
+    //     const video = document.createElement('video')
+    //     video.style.display = 'none'
 
-        function Record() {
-            let formats = [
-                "video/webm\;codecs=h264",
-                "video/webm\;codecs=vp8",
-                'video/vp8',
-                "video/webm",
-                'video/webm,codecs=vp9',
-                "video/webm\;codecs=daala",
-                "video/mpeg"
-            ];
+    //     function Record() {
+    //         let formats = [
+    //             "video/webm\;codecs=h264",
+    //             "video/webm\;codecs=vp8",
+    //             'video/vp8',
+    //             "video/webm",
+    //             'video/webm,codecs=vp9',
+    //             "video/webm\;codecs=daala",
+    //             "video/mpeg"
+    //         ];
 
-            for (let t = 0; t < formats.length; t++) {
-                if (MediaRecorder.isTypeSupported(formats[t])) {
-                    outputFormat = formats[t]
-                    break
-                }
-            }
-            if (typeof outputFormat != "string") {
-                return
-            } else {
-                let videoSettings = {
-                    mimeType: outputFormat,
-                    videoBitsPerSecond: bitrate || 2000000 // 2Mbps
-                };
-                blobCaptures = []
-                try {
-                    recorder = new MediaRecorder(canvasInput, videoSettings)
-                } catch (error) {
-                    return;
-                }
-                recorder.onstop = handleStop
-                recorder.ondataavailable = handleAvailableData
-                recorder.start(100)
-            }
-        }
-        function handleAvailableData(event) {
-            if (event.data && event.data.size > 0) {
-                blobCaptures.push(event.data)
-            }
-        }
-        function handleStop() {
-            const superBuffer = new Blob(blobCaptures, { type: outputFormat })
-            video.src = window.URL.createObjectURL(superBuffer)
-        }
-        function Stop() {
-            recorder.stop()
-            video.controls = true
-        }
-        function saveToDownloads(input) { // specifying a file name for the output
-            const name = input || 'video_out.webm'
-            const blob = new Blob(blobCaptures, { type: outputFormat })
-            const url = window.URL.createObjectURL(blob)
-            const storageElement = document.createElement('a')
-            storageElement.style.display = 'none'
-            storageElement.href = url
-            storageElement.download = name
-            document.body.appendChild(storageElement)
-            storageElement.click()
-            setTimeout(() => {
-                document.body.removeChild(storageElement)
-                window.URL.revokeObjectURL(url)
-            }, 100)
-        }
-    }
+    //         for (let t = 0; t < formats.length; t++) {
+    //             if (MediaRecorder.isTypeSupported(formats[t])) {
+    //                 outputFormat = formats[t]
+    //                 break
+    //             }
+    //         }
+    //         if (typeof outputFormat != "string") {
+    //             return
+    //         } else {
+    //             let videoSettings = {
+    //                 mimeType: outputFormat,
+    //                 videoBitsPerSecond: bitrate || 2000000 // 2Mbps
+    //             };
+    //             blobCaptures = []
+    //             try {
+    //                 recorder = new MediaRecorder(canvasInput, videoSettings)
+    //             } catch (error) {
+    //                 return;
+    //             }
+    //             recorder.onstop = handleStop
+    //             recorder.ondataavailable = handleAvailableData
+    //             recorder.start(100)
+    //         }
+    //     }
+    //     function handleAvailableData(event) {
+    //         if (event.data && event.data.size > 0) {
+    //             blobCaptures.push(event.data)
+    //         }
+    //     }
+    //     function handleStop() {
+    //         const superBuffer = new Blob(blobCaptures, { type: outputFormat })
+    //         video.src = window.URL.createObjectURL(superBuffer)
+    //     }
+    //     function Stop() {
+    //         recorder.stop()
+    //         video.controls = true
+    //     }
+    //     function saveToDownloads(input) { // specifying a file name for the output
+    //         const name = input || 'video_out.webm'
+    //         const blob = new Blob(blobCaptures, { type: outputFormat })
+    //         const url = window.URL.createObjectURL(blob)
+    //         const storageElement = document.createElement('a')
+    //         storageElement.style.display = 'none'
+    //         storageElement.href = url
+    //         storageElement.download = name
+    //         document.body.appendChild(storageElement)
+    //         storageElement.click()
+    //         setTimeout(() => {
+    //             document.body.removeChild(storageElement)
+    //             window.URL.revokeObjectURL(url)
+    //         }, 100)
+    //     }
+    // }
     const gamepadAPI = {
         controller: {},
         turbo: true,
@@ -1083,7 +1083,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
     function setUp(canvas_pass, style = "#002222") {
         canvas = canvas_pass
-        video_recorder = new CanvasCaptureToWEBM(canvas, 4500000);
+        // video_recorder = new CanvasCaptureToWEBM(canvas, 4500000);
         canvas_context = canvas.getContext('2d');
         canvas_context.imageSmoothingEnabled = true
         canvas.style.background = style
@@ -1619,6 +1619,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.spindir = (Math.random() - .5) / 10
             this.sdir = Math.random() - .5
             this.reprate = .00022 + (this.type / 50000)
+            if(this.type == 3){
+                this.reprate = (.00022 + (this.type / 50000))+.0002
+            }
             if (this.type == 6) {
                 this.reprate = .0000769 //5 //69
             }
@@ -1683,7 +1686,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
                 if (Math.random() < this.reprate) {
-                    if (tank.animals.length < 120 || (tank.animals.length < 131 && (this.type == 6 || this.type == 10)) || (tank.animals.length < 133 && (this.type == 11)) ) {
+                    if (tank.animals.length < 150 || (tank.animals.length < 161 && (this.type == 6 || this.type == 10)) || (tank.animals.length < 163 && (this.type == 11)) ) { //150 - 120
                         let wet = 0
                         for (let t = 0; t < tank.animals.length; t++) {
                             if (tank.animals[t] != this) {
@@ -1882,7 +1885,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     } else {
                         this.body.y += this.sdir
                     }
-                    this.hunger -= 1.051 * .15
+                    this.hunger -= 1.101 * .15
                 }
 
                 if (this.count % this.think == 0) {
@@ -2069,7 +2072,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     } else {
                         this.body.y += this.sdir
                     }
-                    this.hunger -= 1.051 * .161
+                    this.hunger -= 1.101 * .161
                 }
 
                 if (this.count % this.think == 0) {
@@ -2202,7 +2205,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             if (this.type == 2) {
                 //clammoth
-                this.hunger -= 1.051 * .019 //003 //009
+                this.hunger -= 1.101 * .019 //003 //009
                 this.weight = .9
                 this.step++
                 if (this.hunger > 50) {
@@ -2515,7 +2518,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     } else {
                         this.body.y += this.sdir
                     }
-                    this.hunger -= 1.051 * .105 //07
+                    this.hunger -= 1.101 * .105 //07
                 }
 
                 if (this.count % this.think == 0) {
@@ -2763,7 +2766,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
 
                 }
-                this.hunger -= 1.051 * .02 //01
+                this.hunger -= 1.101 * .02 //01
             }
             if (this.type == 5) {
                 this.weight = 1.4
@@ -2891,7 +2894,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
 
                 }
-                this.hunger -= 1.051 * .005 //002
+                this.hunger -= 1.101 * .005 //002
             }
 
             if (this.type == 6) {
@@ -2988,7 +2991,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         this.hungerstate = 0
                         this.mouthdir = 0
                     }
-                    this.hunger -= 1.051 * .5 //.25
+                    this.hunger -= 1.101 * .5 //.25
                     // console.log(this.hunger)
                 }
 
@@ -3398,7 +3401,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         }
                     }
                 }
-                // this.hunger -= 1.051*.5 //.25
+                // this.hunger -= 1.101 //1.051*.5 //.25
                 // console.log(this.hunger)
                 // }
 
@@ -3458,7 +3461,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
 
                 }
-                this.hunger -= 1.051 * .009 //01
+                this.hunger -= 1.101 * .009 //01
             }
             if (this.type == 8) {
                 this.weight = 12.4
@@ -3646,7 +3649,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.hungerstate = 0
                     this.mouthdir = 0
                 }
-                // this.hunger -= 1.051*.5 //.25
+                // this.hunger -= 1.101 //1.051*.5 //.25
                 // console.log(this.hunger)
                 // }
 
@@ -3711,7 +3714,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
 
                 }
-                this.hunger -= 1.051 * .009 //01
+                this.hunger -= 1.101 * .009 //01
             }
             if (this.type == 9) {
                 this.weight = 4.4
@@ -3907,7 +3910,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.hungerstate = 0
                     this.mouthdir = 0
                 }
-                // this.hunger -= 1.051*.5 //.25
+                // this.hunger -= 1.101 //1.051*.5 //.25
                 // console.log(this.hunger)
                 // }
 
@@ -3972,7 +3975,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
 
                 }
-                this.hunger -= 1.051 * .009 //01
+                this.hunger -= 1.101 * .009 //01
             }
             if (this.type == 10) {
                 if (this.body.y + this.body.radius > tank.floors[0].y) {
@@ -4219,7 +4222,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.hungerstate = 0
                     this.mouthdir = 0
                 }
-                // this.hunger -= 1.051*.5 //.25
+                // this.hunger -= 1.101 //1.051*.5 //.25
                 // console.log(this.hunger)
                 // }
                 if (this.hunger < 50) {
@@ -4317,7 +4320,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
 
                 }
-                this.hunger -= 1.051 * .005 ///0019
+                this.hunger -= 1.101 * .005 ///0019
             }
 
             if (this.type == 11) {
@@ -4458,7 +4461,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
 
                 }
-                this.hunger -= 1.051 * .0079 //009 //01
+                this.hunger -= 1.101 * .0079 //009 //01
             }
         }
     }
@@ -4503,7 +4506,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     planttype++
                 }
             }
-            this.age += (planttype + 150) / 225 //100
+            this.age += ((planttype + 150) / 225)*((planttype + 150) / 225) //100
             if (this.age > 16000) { //12000
                 if (Math.random() < .0004) {
                     this.marked = 1
@@ -4521,7 +4524,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.step %= 6
                 }
                 this.foodtick++
-                if (this.foodtick % 630 == 0) { //630
+                if (this.foodtick % 635 == 0) { //630
                     let planttype = 0
                     for (let t = 0; t < tank.food.length; t++) {
                         if (this.type == tank.food[t].seed) {
@@ -4531,9 +4534,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     if (planttype < 150) {
                         let food = new Food(this.body)
                         food.seed = 0
-                        food.seedrate = .12 //11 //09 //07 //055
+                        food.seedrate = .115 //12 //11 //09 //07 //055
                         food.moving = 1
-                        food.body.xmom = (Math.random() - .5) * 10
+                        food.body.xmom = (Math.random() - .5) * 18 //10 this should reduce clumping
                         food.body.radius = 1.5
                         food.calories = 20
                         food.body.color = "Yellow"
@@ -4557,7 +4560,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.step %= 1
                 }
                 this.foodtick++
-                if (this.foodtick % 510 == 0) { //510
+                if (this.foodtick % 515 == 0) { //510
                     let planttype = 0
                     for (let t = 0; t < tank.food.length; t++) {
                         if (this.type == tank.food[t].seed) {
@@ -4567,7 +4570,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     if (planttype < 150) {
                         let food = new Food(this.body)
                         food.seed = 1
-                        food.seedrate = .1 //09 //65 //45 //35
+                        food.seedrate = .095//.1//09 //65 //45 //35
                         food.moving = 1
                         food.life = 1000
                         food.body.xmom = (Math.random() - .5) * 7
@@ -4962,15 +4965,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
         // canvas_context.drawImage(canvas,0,0)
 
-        if (keysPressed['4'] && recording == 0) {
-            recording = 1
-            video_recorder.record()
-        }
-        if (keysPressed['5'] && recording == 1) {
-            recording = 0
-            video_recorder.stop()
-            video_recorder.download('File Name As A String.webm')
-        }
+        // if (keysPressed['4'] && recording == 0) {
+        //     recording = 1
+        //     video_recorder.record()
+        // }
+        // if (keysPressed['5'] && recording == 1) {
+        //     recording = 0
+        //     video_recorder.stop()
+        //     video_recorder.download('File Name As A String.webm')
+        // }
 
 
     }
