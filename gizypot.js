@@ -466,17 +466,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
         }
         draw() {
-            canvas_context.lineWidth = this.strokeWidth
-            canvas_context.strokeStyle = this.color
+            // canvas_context.lineWidth = this.strokeWidth
+            // canvas_context.strokeStyle = this.color
             canvas_context.beginPath();
-            if (this.radius > 0) {
+            // if (this.radius > 0) {
                 canvas_context.arc(this.x, this.y, this.radius, 0, (Math.PI * 2), true)
                 canvas_context.fillStyle = this.color
                 canvas_context.fill()
-                canvas_context.stroke();
-            } else {
-                console.log("The circle is below a radius of 0, and has not been drawn. The circle is:", this)
-            }
+                // canvas_context.stroke();
+            // } else {
+            //     console.log("The circle is below a radius of 0, and has not been drawn. The circle is:", this)
+            // }
         }
         move() {
             if (this.reflect == 1) {
@@ -670,7 +670,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.nodes.push(node)
                 this.angle += this.angleIncrement
             }
-            canvas_context.strokeStyle = this.color
+            canvas_context.strokeStyle = "black"
             canvas_context.fillStyle = this.color
             canvas_context.lineWidth = 0
             canvas_context.beginPath()
@@ -1107,7 +1107,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
             TIP_engine.y = YS_engine
             TIP_engine.body = TIP_engine
 
-            coordi.act()
+            if(tank.UI.wedge.isPointInside(TIP_engine)){
+                if(tank.UI.show == 0){
+                    tank.UI.show = 1
+                }else{
+                    tank.UI.show = 0
+                }
+            }else{
+                coordi.act()
+            }
 
             // tank.animals[0].dirshift = 40
             // example usage: if(object.isPointInside(TIP_engine)){ take action }
@@ -1363,6 +1371,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 canvas_context.fillText("To buy fish/plants/food, you can cycle your selection in the top corner with Q/W/E, and space!", 200, 200)
                 canvas_context.fillText("A functioning ecosystem provides income!", 400, 250)
                 canvas_context.fillText("Click to place things!", 500, 300)
+                canvas_context.fillText("Use U/J to change the water level", 450, 450)
 
             }
             canvas_context.fillStyle = "white"
@@ -1532,10 +1541,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
                         if (planttype < 200) {
-                            if (this.seed == 0) {
+                            if (this.seed == 0 && this.body.y > tank.waterline) {
                                 tank.plants.push(plant)
                             } else {
-                                if (tank.inFloor(plant.body.x)) {
+                                if (tank.inFloor(plant.body.x) && this.body.y <= tank.waterline) {
                                     tank.plants.push(plant)
                                 }
                             }
@@ -1662,6 +1671,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (this.type == 6) {
                     this.reprate *= .9999
                 }
+                if (this.type == 7) {
+                    this.reprate *= .9998
+                }
+                ///addfrog
             }
             if (this.size < 1) {
                 this.size *= this.growthrate
@@ -1685,8 +1698,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         this.hunger = -1000
                     }
                 }
+
+                let planttype = 0
+                for (let t = 0; t < tank.animals.length; t++) {
+                    if (this.type == tank.animals[t].type) {
+                        planttype++
+                    }
+                }
+
+
                 if (Math.random() < this.reprate) {
-                    if (tank.animals.length < 150 || (tank.animals.length < 161 && (this.type == 6 || this.type == 10)) || (tank.animals.length < 163 && (this.type == 11)) ) { //150 - 120
+                    if ((tank.animals.length < 150 || (tank.animals.length < 161 && (this.type == 6 || this.type == 10)) || (tank.animals.length < 163 && (this.type == 11)) || (planttype < 12)) ) { //150 - 120
                         let wet = 0
                         for (let t = 0; t < tank.animals.length; t++) {
                             if (tank.animals[t] != this) {
@@ -1865,8 +1887,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                     break
                                 }
                             }
-                            if (min > tank.food[t].link.hypotenuse()) {
-                                min = tank.food[t].link.hypotenuse()
+                            let mint = tank.food[t].link.hypotenuse()
+                            if (min > mint) {
+                                min =  mint
                                 this.target = tank.food[t].body
                                 if (min < 18) {
                                     tank.food[t].marked = 1
@@ -2058,8 +2081,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                     break
                                 }
                             }
-                            if (min > tank.food[t].link.hypotenuse()) {
-                                min = tank.food[t].link.hypotenuse()
+                            let mint = tank.food[t].link.hypotenuse()
+                            if (min > mint) {
+                                min =  mint
                                 this.target = tank.food[t].body
                                 if (min < 18) {
                                     tank.food[t].marked = 1
@@ -2291,20 +2315,21 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                     break
                                 }
                             }
-                            if (min > tank.food[t].link.hypotenuse()) {
-                                min = tank.food[t].link.hypotenuse()
+                            let mint = tank.food[t].link.hypotenuse()
+                            if (min > mint) {
+                                min =  mint
                                 this.target = tank.food[t].body
 
                                 if (this.body.y > tank.waterline) {
                                     this.xdir = (tank.food[t].body.x - this.body.x) * 1.5
                                     this.ydir = (tank.food[t].body.y - this.body.y) * 1.5
-                                    this.xdir /= tank.food[t].link.hypotenuse()
-                                    this.ydir /= tank.food[t].link.hypotenuse()
+                                    this.xdir /= mint
+                                    this.ydir /= mint
                                 } else {
                                     this.xdir = (tank.food[t].body.x - this.body.x) * 3
                                     this.ydir = (tank.food[t].body.y - this.body.y) * 3
-                                    this.xdir /= tank.food[t].link.hypotenuse()
-                                    this.ydir /= tank.food[t].link.hypotenuse()
+                                    this.xdir /= mint
+                                    this.ydir /= mint
                                 }
 
                                 if (min < 18) {
@@ -2504,8 +2529,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                     break
                                 }
                             }
-                            if (min > tank.food[t].link.hypotenuse()) {
-                                min = tank.food[t].link.hypotenuse()
+                            let mint = tank.food[t].link.hypotenuse()
+                            if (min > mint) {
+                                min =  mint
                                 this.target = tank.food[t].body
                                 if (min < 18) {
                                     tank.food[t].marked = 1
@@ -2703,8 +2729,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 break
                             }
                         }
-                        if (min > tank.food[t].link.hypotenuse()) {
-                            min = tank.food[t].link.hypotenuse()
+                        let mint = tank.food[t].link.hypotenuse()
+                        if (min > mint) {
+                            min =  mint
                             this.target = tank.food[t].body
                             this.angle = tank.food[t].link.angle() + (Math.PI / 2)
                             // if(this.bump != 0){
@@ -2808,8 +2835,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 break
                             }
                         }
-                        if (min > tank.food[t].link.hypotenuse()) {
-                            min = tank.food[t].link.hypotenuse()
+                        let mint = tank.food[t].link.hypotenuse()
+                        if (min > mint) {
+                            min =  mint
                             this.target = tank.food[t].body
                             this.angle = tank.food[t].link.angle() + (Math.PI / 2)
                             // if(this.bump != 0){
@@ -3339,7 +3367,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 tank.animals[t].hunger = -100
                                 tank.animals[t].body.marked = 1
                                 tank.animals[t].marked = 1
-                                this.hunger += 200//tank.animals[t].calories
+                                this.hunger += 300//tank.animals[t].calories
                                 // tank.animals[t].body.shapes.splice(0, 1)
                                 // this.hunger%=100
                             }
@@ -3386,8 +3414,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 break
                             }
                         }
-                        if (min > tank.food[t].link.hypotenuse()) {
-                            min = tank.food[t].link.hypotenuse()
+                        let mint = tank.food[t].link.hypotenuse()
+                        if (min > mint) {
+                            min =  mint
                             this.target = tank.food[t].body
                             this.angle = tank.food[t].link.angle() + (Math.PI / 2)
                             // if(this.bump != 0){
@@ -3559,8 +3588,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 break
                             }
                         }
-                        if (min > tank.food[t].link.hypotenuse()) {
-                            min = tank.food[t].link.hypotenuse()
+                        let mint = tank.food[t].link.hypotenuse()
+                        if (min > mint) {
+                            min =  mint
                             this.target = tank.food[t].body
                             this.angle = tank.food[t].link.angle() + (Math.PI / 2)
                             // if(this.bump != 0){
@@ -3820,8 +3850,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 break
                             }
                         }
-                        if (min > tank.food[t].link.hypotenuse()) {
-                            min = tank.food[t].link.hypotenuse()
+                        let mint = tank.food[t].link.hypotenuse()
+                        if (min > mint) {
+                            min =  mint
                             this.target = tank.food[t].body
                             this.angle = tank.food[t].link.angle() + (Math.PI / 2)
                             // if(this.bump != 0){
@@ -4131,8 +4162,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 break
                             }
                         }
-                        if (min > tank.food[t].link.hypotenuse()) {
-                            min = tank.food[t].link.hypotenuse()
+                        let mint = tank.food[t].link.hypotenuse()
+                        if (min > mint) {
+                            min =  mint
                             this.target = tank.food[t].body
                             this.angle = tank.food[t].link.angle() + (Math.PI / 2)
                             // if(this.bump != 0){
@@ -4206,7 +4238,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 tank.animals[t].hunger = -100
                                 tank.animals[t].body.marked = 1
                                 tank.animals[t].marked = 1
-                                this.hunger += 200//tank.animals[t].calories
+                                this.hunger += 300//tank.animals[t].calories
                                 // tank.animals[t].body.shapes.splice(0, 1)
                                 // this.hunger%=100
                             }
@@ -4474,7 +4506,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (type == 0) {
                 this.body = new Circle(x, (canvas.height - 32), 16, "transparent")
             } else {
-                this.body = new Circle(x, (canvas.height - (18 + 360)), 16, "transparent")
+                this.body = new Circle(x, (canvas.height - (18 +( canvas.height-tank.waterline))), 16, "transparent")
             }
             this.image = new Image()
             this.imagei = new Image()
@@ -4506,7 +4538,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     planttype++
                 }
             }
-            this.age += ((planttype + 150) / 225)*((planttype + 150) / 225) //100
+            this.age += (((planttype*1.05) + 150) / 232)*(((planttype*1.05) + 150) / 232) //100
             if (this.age > 16000) { //12000
                 if (Math.random() < .0004) {
                     this.marked = 1
@@ -4548,6 +4580,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
             }
             if (this.type == 1) {
+                this.body.y = (canvas.height - (18 +( canvas.height-tank.waterline)))
                 //bush plant
                 this.weight = 5000
                 this.tick = 2
@@ -4587,12 +4620,124 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
+    class FishUI {
+        constructor(){
+            this.show = 0
+            this.body = new Rectangle(900, 0, canvas.width-900, canvas.height, "#444444CC")
+            this.edge = new Rectangle(900, 0, 3, canvas.height, "#FFFFFF")
+            this.wedge = new Rectangle(1260, this.body.y+128, 20, 20, "white")
+        }
+        draw(){
+            if(this.show == 1){
+
+            this.poly = new Polygon(this.wedge.x+10, this.wedge.y+10, 8, "#FFAA00", 3, 0,0,)
+                this.wedge.x = 880
+                this.wedge.draw()
+                this.body.draw()
+                this.edge.draw()
+                this.poly.draw()
+                canvas_context.font = "20px arial"
+                canvas_context.fillStyle = '#FFAA00'
+                canvas_context.fillText("Total animals: "+tank.animals.length, this.body.x + 10, this.body.y + 125)
+                canvas_context.fillText("Total plants: "+tank.plants.length, this.body.x + 10, this.body.y + 150)
+
+
+
+                let hash = {}
+                for (let t = 0; t < tank.animals.length; t++) {
+                    if(hash[`${tank.animals[t].type}`]){
+                        hash[`${tank.animals[t].type}`]++
+                    }else{
+                        hash[`${tank.animals[t].type}`] = 1
+                    }
+                }
+                let step = 0
+                if(hash['0']){
+                    canvas_context.fillText("Anchorfish: "+ hash['0'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+                if(hash['1']){
+                    canvas_context.fillText("Fish Clowns: "+ hash['1'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+                if(hash['2']){
+                    canvas_context.fillText("Clammoths: "+ hash['2'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+                if(hash['3']){
+                    canvas_context.fillText("Seahogs: "+ hash['3'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+                if(hash['4']){
+                    canvas_context.fillText("Eyepeller: "+ hash['4'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+                if(hash['5']){
+                    canvas_context.fillText("Pufftacles: "+ hash['5'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+                if(hash['6']){
+                    canvas_context.fillText("Gulpuffs: "+ hash['6'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+                if(hash['7']){
+                    canvas_context.fillText("Froggair: "+ hash['7'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+                if(hash['8']){
+                    canvas_context.fillText("Pomanatees: "+ hash['8'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+                if(hash['9']){
+                    canvas_context.fillText("Nautillus: "+ hash['9'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+                if(hash['10']){
+                    canvas_context.fillText("Emperor Fishers: "+ hash['10'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+                if(hash['11']){
+                    canvas_context.fillText("Scuttlefish: "+ hash['11'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+
+
+                hash = {}
+                for (let t = 0; t < tank.plants.length; t++) {
+                    if(hash[`${tank.plants[t].type}`]){
+                        hash[`${tank.plants[t].type}`]++
+                    }else{
+                        hash[`${tank.plants[t].type}`] = 1
+                    }
+                }
+
+                if(hash['0']){
+                    canvas_context.fillText("Seaweed: "+ hash['0'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+                if(hash['1']){
+                    canvas_context.fillText("Bushes: "+ hash['1'], this.body.x + 10, this.body.y + 175+step)
+                    step+=25
+                }
+
+                
+            }else{
+                this.poly = new Polygon(this.wedge.x+10, this.wedge.y+10, 8, "#FFAA00", 3, 0,0,Math.PI/3)
+                this.wedge.x = 1260
+                this.wedge.draw()
+                this.poly.draw()
+            }
+        }
+    }
+
     class Tank {
         constructor() {
+            this.UI = new FishUI()
             this.money = 500
-            const f1 = new Rectangle(0, 357, 200, 7, "white")
-            const f2 = new Rectangle(1080, 357, 200, 7, "white")
-            const f3 = new Rectangle(300, 357, 680, 7, "white")
+            this.waterline = 360
+            const f1 = new Rectangle(0, this.waterline-3, 200, 7, "white")
+            const f2 = new Rectangle(1080, this.waterline-3, 200, 7, "white")
+            const f3 = new Rectangle(300, this.waterline-3, 680, 7, "white")
             this.floors = [f1, f3, f2]
             // this.aninals = [new Animal(500,500,1),   new Animal(700,400,0),   new Animal(200,600,1)]
             this.animals = []
@@ -4612,9 +4757,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
             // }
             // this.plants = [new Plant(300, canvas.height - 32, 0), new Plant(900, canvas.height - 32, 0), new Plant(100, canvas.height - 32, 0), new Plant(1100, canvas.height - 32, 0), new Plant(500, canvas.height - 32, 0), new Plant(700, canvas.height - 32, 0), new Plant(800, canvas.height - 32, 1), new Plant(120, canvas.height - 32, 1), new Plant(1140, canvas.height - 32, 1), new Plant(700, canvas.height - 32, 1), new Plant(400, canvas.height - 32, 1), new Plant(900, canvas.height - 32, 1), new Plant(600, canvas.height - 32, 1), new Plant(500, canvas.height - 32, 1)]
             this.plants = []
-            this.waterline = 360
             this.food = []
-            this.water = new Rectangle(0, 360, 1280, 360, "#0033FF20")
+            this.water = new Rectangle(0, this.waterline, 1280, 720-this.waterline, "#0033FF20")
             this.grd = canvas_context.createLinearGradient(0, 0, 1280, 0)
 
             this.grd.addColorStop(0, "#00660024")
@@ -4652,9 +4796,21 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
             }
 
+            if(keysPressed['u']){
+                if(this.waterline > 100){
+                    this.waterline--
+                }
+            }
+            if(keysPressed['j']){
+                if(this.waterline < canvas.height-100){
+                    this.waterline++
+                }
+            }
+            this.water = new Rectangle(0, this.waterline, 1280, 720-this.waterline, "#0033FF20")
 
             this.water.draw()
             for (let t = 0; t < this.floors.length; t++) {
+                this.floors[t].y = this.waterline-3
                 this.floors[t].draw()
             }
             this.money += .015 * this.animals.length
@@ -4702,73 +4858,81 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
             }
-            for (let t = 0; t < this.food.length; t++) {
-                for (let k = 0; k < this.food.length; k++) {
-                    if (t != k) {
-                        this.food[t].link.target = this.food[k].body
-                        let j = 0
-                        let jbreak = 0
-                        while (this.food[t].link.hypotenuse() < this.food[t].body.radius + this.food[k].body.radius) {
-                            jbreak++
-                            if (jbreak > 1000) {
-                                break
-                            }
-                            j++
-                            if (j > 5) {
-                                break
-                            }
-                            let cos = Math.cos(this.food[t].link.angle()) / 5
-                            let sin = Math.sin(this.food[t].link.angle()) / 5
-                            this.food[t].body.x += cos / this.food[t].weight
-                            this.food[t].body.y += sin / this.food[t].weight
-                            this.food[k].body.x -= cos / this.food[k].weight
-                            this.food[k].body.y -= sin / this.food[k].weight
+            // for (let t = 0; t < this.food.length; t++) {
+            //     if(this.food[t].seed < 0){
+            //     }else{
+            //         continue
+            //     }
+            //     for (let k = 0; k < this.food.length; k++) {
+            //         if(this.food[k].seed < 0){
+            //         }else{
+            //             continue
+            //         }
+            //         if (t != k) {
+            //             this.food[t].link.target = this.food[k].body
+            //             let j = 0
+            //             let jbreak = 0
+            //             while (this.food[t].link.hypotenuse() < this.food[t].body.radius + this.food[k].body.radius) {
+            //                 jbreak++
+            //                 if (jbreak > 1000) {
+            //                     break
+            //                 }
+            //                 j++
+            //                 if (j > 5) {
+            //                     break
+            //                 }
+            //                 let cos = Math.cos(this.food[t].link.angle()) / 5
+            //                 let sin = Math.sin(this.food[t].link.angle()) / 5
+            //                 this.food[t].body.x += cos / this.food[t].weight
+            //                 this.food[t].body.y += sin / this.food[t].weight
+            //                 this.food[k].body.x -= cos / this.food[k].weight
+            //                 this.food[k].body.y -= sin / this.food[k].weight
 
-                            for (let r = 0; r < 3; r++) {
-                                if (this.food[t].body.y >= 717) {
-                                    break
-                                }
-                                if (this.food[t].body.y > this.waterline) {
-                                    this.food[t].body.y += .25
-                                } else {
-                                    let wet = 0
-                                    for (let k = 0; k < this.floors.length; k++) {
-                                        if (this.floors[k].doesPerimeterTouch(this.food[t].body)) {
-                                            wet = 1
-                                        }
-                                    }
-                                    if (wet == 1) {
-                                        this.food[t].body.y -= .01
-                                    } else {
+            //                 for (let r = 0; r < 3; r++) {
+            //                     if (this.food[t].body.y >= 717) {
+            //                         break
+            //                     }
+            //                     if (this.food[t].body.y > this.waterline) {
+            //                         this.food[t].body.y += .25
+            //                     } else {
+            //                         let wet = 0
+            //                         for (let k = 0; k < this.floors.length; k++) {
+            //                             if (this.floors[k].doesPerimeterTouch(this.food[t].body)) {
+            //                                 wet = 1
+            //                             }
+            //                         }
+            //                         if (wet == 1) {
+            //                             this.food[t].body.y -= .01
+            //                         } else {
 
-                                    }
-                                }
-                            }
+            //                         }
+            //                     }
+            //                 }
 
 
-                            for (let r = 0; r < 3; r++) {
-                                if (this.food[k].body.y >= 717) {
-                                    break
-                                }
-                                if (this.food[k].body.y > this.waterline) {
-                                    this.food[k].body.y += .25
-                                } else {
-                                    let wet = 0
-                                    for (let k = 0; k < this.floors.length; k++) {
-                                        if (this.floors[k].doesPerimeterTouch(this.food[t].body)) {
-                                            wet = 1
-                                        }
-                                    }
-                                    if (wet == 1) {
-                                        this.food[k].body.y -= .01
-                                    } else {
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            //                 for (let r = 0; r < 3; r++) {
+            //                     if (this.food[k].body.y >= 717) {
+            //                         break
+            //                     }
+            //                     if (this.food[k].body.y > this.waterline) {
+            //                         this.food[k].body.y += .25
+            //                     } else {
+            //                         let wet = 0
+            //                         for (let k = 0; k < this.floors.length; k++) {
+            //                             if (this.floors[k].doesPerimeterTouch(this.food[t].body)) {
+            //                                 wet = 1
+            //                             }
+            //                         }
+            //                         if (wet == 1) {
+            //                             this.food[k].body.y -= .01
+            //                         } else {
+            //                         }
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
 
             for (let t = 0; t < this.food.length; t++) {
 
@@ -4872,15 +5036,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                     if (this.floors[k].doesPerimeterTouch(this.food[t].body.shapes[y])) {
                                         wet = 1
                                         this.food[t].body.shapes[y].y -= 1
-
                                         let tempx = this.food[t].body.shapes[y].x
                                         let tempy = this.food[t].body.shapes[y].y
                                         if (y < this.food[t].body.shapes.length - 1 && y > 0) {
                                             this.food[t].body.shapes[y].x = ((((tempx * 9) + (this.food[t].body.shapes[y + 1].x)) * .1) + (((tempx * 9) + (this.food[t].body.shapes[y - 1].x)) * .1)) * .5
                                             this.food[t].body.shapes[y].y = ((((tempy * 9) + (this.food[t].body.shapes[y + 1].y)) * .1) + (((tempy * 9) + (this.food[t].body.shapes[y - 1].y)) * .1)) * .5
                                         }
-
-
                                     }
                                 }
                             }
@@ -4901,11 +5062,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         if (wet == 0) {
 
                             for (let k = 0; k < this.food.length; k++) {
-                                if (this.food[k].body.doesPerimeterTouch(this.food[t].body)) {
-                                    if (k != t) {
-
-                                        wet = 1
-                                        break
+                                if(this.food[k].seed == -1){
+                                    if (this.food[k].body.doesPerimeterTouch(this.food[t].body)) {
+                                        if (k != t) {
+    
+                                            wet = 1
+                                            break
+                                        }
                                     }
                                 }
                             }
@@ -4943,6 +5106,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
             }
 
+            this.UI.draw()
             canvas_context.font = "20px arial"
             canvas_context.fillStyle = 'white'
             canvas_context.fillText('Ұ' + Math.floor(this.money), 20, 20)
