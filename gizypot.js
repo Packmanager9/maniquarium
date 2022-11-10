@@ -1656,7 +1656,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             if (this.type == 10) {
                 this.agemax *= 3
-                this.reprate = .0000769 * .59999999 //6219 //5 //69 ////707
+                this.reprate = .0000769 * .49999999 //6219 //5 //69 ////707 //59999999
             }
             if (this.type == 11) {
                 this.agemax *= 10
