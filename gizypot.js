@@ -1652,7 +1652,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             if (this.type == 9) {
                 this.agemax *= 5
-                this.reprate *= .198
+                this.reprate *= .168 //198
             }
             if (this.type == 10) {
                 this.agemax *= 3
@@ -1672,7 +1672,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.reprate *= .9999
                 }
                 if (this.type == 7) {
-                    this.reprate *= .9998
+                    this.reprate *= .9996
+                }
+                if (this.type == 9) {
+                    this.reprate *= .9996
                 }
                 ///addfrog
             }
